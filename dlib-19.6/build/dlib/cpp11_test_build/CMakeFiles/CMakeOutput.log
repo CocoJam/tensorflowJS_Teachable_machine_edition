@@ -1,0 +1,36 @@
+Performing C++ SOURCE FILE Test COMPILER_SUPPORTS_CXX11 succeeded with the following output:
+Change Dir: C:/Users/james/Desktop/dlib-19.6/build/dlib/cpp11_test_build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_da0ff/fast"
+C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_da0ff.dir\build.make CMakeFiles/cmTC_da0ff.dir/build
+mingw32-make.exe[1]: Entering directory 'C:/Users/james/Desktop/dlib-19.6/build/dlib/cpp11_test_build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_da0ff.dir/src.cxx.o
+C:\Users\james\emsdk\emscripten\1.38.10\em++.bat    -DCOMPILER_SUPPORTS_CXX11 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0   -std=c++11 -o CMakeFiles\cmTC_da0ff.dir\src.cxx.o -c C:\Users\james\Desktop\dlib-19.6\build\dlib\cpp11_test_build\CMakeFiles\CMakeTmp\src.cxx
+Linking CXX executable cmTC_da0ff.js
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_da0ff.dir\link.txt --verbose=1
+C:\Users\james\emsdk\emscripten\1.38.10\em++.bat   -DCOMPILER_SUPPORTS_CXX11 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0    @CMakeFiles\cmTC_da0ff.dir\objects1.rsp  -o cmTC_da0ff.js 
+INFO:root:generating system library: dlmalloc.bc... (this will be cached in "C:\Users\james\.emscripten_cache\asmjs\dlmalloc.bc" for subsequent builds)
+INFO:root: - ok
+INFO:root:generating system library: libc.bc... (this will be cached in "C:\Users\james\.emscripten_cache\asmjs\libc.bc" for subsequent builds)
+INFO:root: - ok
+INFO:root:generating system asset: generated_struct_info.json... (this will be cached in "C:\Users\james\.emscripten_cache\asmjs\generated_struct_info.json" for subsequent builds)
+INFO:root: - ok
+mingw32-make.exe[1]: Leaving directory 'C:/Users/james/Desktop/dlib-19.6/build/dlib/cpp11_test_build/CMakeFiles/CMakeTmp'
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORTS_CXX0X succeeded with the following output:
+Change Dir: C:/Users/james/Desktop/dlib-19.6/build/dlib/cpp11_test_build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_ac7f2/fast"
+C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_ac7f2.dir\build.make CMakeFiles/cmTC_ac7f2.dir/build
+mingw32-make.exe[1]: Entering directory 'C:/Users/james/Desktop/dlib-19.6/build/dlib/cpp11_test_build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_ac7f2.dir/src.cxx.o
+C:\Users\james\emsdk\emscripten\1.38.10\em++.bat    -DCOMPILER_SUPPORTS_CXX0X -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0   -std=c++0x -o CMakeFiles\cmTC_ac7f2.dir\src.cxx.o -c C:\Users\james\Desktop\dlib-19.6\build\dlib\cpp11_test_build\CMakeFiles\CMakeTmp\src.cxx
+Linking CXX executable cmTC_ac7f2.js
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_ac7f2.dir\link.txt --verbose=1
+C:\Users\james\emsdk\emscripten\1.38.10\em++.bat   -DCOMPILER_SUPPORTS_CXX0X -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0    @CMakeFiles\cmTC_ac7f2.dir\objects1.rsp  -o cmTC_ac7f2.js 
+mingw32-make.exe[1]: Leaving directory 'C:/Users/james/Desktop/dlib-19.6/build/dlib/cpp11_test_build/CMakeFiles/CMakeTmp'
+
+Source file was:
+int main() { return 0; }

@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+
+<head>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .canvas {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="ValueTypeExample.js"></script>
+    <script>
+        Module.addOnPostRun(() => {
+
+            // Canvas resizing from http://stackoverflow.com/a/43364730/2142626
+
+            console.time('mandelbrot');
+            var person = Module.findPersonAtLocation([10.2, 156.5]);
+            console.log('Found someone! Their name is ' + person.name + ' and they are ' + person.age + ' years old');
+            console.timeEnd('mandelbrot');
+        });
+    </script>
+</body>
+
+</html>

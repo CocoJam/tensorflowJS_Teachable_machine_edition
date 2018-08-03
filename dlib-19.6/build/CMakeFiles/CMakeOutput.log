@@ -1,0 +1,86 @@
+The target system is: Emscripten - 1 - x86
+The host system is: Windows - 10.0.17134 - AMD64
+Determining if the pthread_create exist passed with the following output:
+Change Dir: C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_e56c2/fast"
+C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_e56c2.dir\build.make CMakeFiles/cmTC_e56c2.dir/build
+mingw32-make.exe[1]: Entering directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e56c2.dir/CheckSymbolExists.c.o
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat   -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0   -o CMakeFiles\cmTC_e56c2.dir\CheckSymbolExists.c.o   -c C:\Users\james\Desktop\dlib-19.6\build\CMakeFiles\CMakeTmp\CheckSymbolExists.c
+Linking C executable cmTC_e56c2.js
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_e56c2.dir\link.txt --verbose=1
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat  -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0    @CMakeFiles\cmTC_e56c2.dir\objects1.rsp  -o cmTC_e56c2.js 
+mingw32-make.exe[1]: Leaving directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+
+File C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the include file sys/types.h exists passed with the following output:
+Change Dir: C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_9ca47/fast"
+C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_9ca47.dir\build.make CMakeFiles/cmTC_9ca47.dir/build
+mingw32-make.exe[1]: Entering directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_9ca47.dir/CheckIncludeFile.c.o
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat   -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0   -o CMakeFiles\cmTC_9ca47.dir\CheckIncludeFile.c.o   -c C:\Users\james\Desktop\dlib-19.6\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c
+Linking C executable cmTC_9ca47.js
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_9ca47.dir\link.txt --verbose=1
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat  -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0    @CMakeFiles\cmTC_9ca47.dir\objects1.rsp  -o cmTC_9ca47.js 
+mingw32-make.exe[1]: Leaving directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file stdint.h exists passed with the following output:
+Change Dir: C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_2f1c1/fast"
+C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_2f1c1.dir\build.make CMakeFiles/cmTC_2f1c1.dir/build
+mingw32-make.exe[1]: Entering directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2f1c1.dir/CheckIncludeFile.c.o
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat   -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0   -o CMakeFiles\cmTC_2f1c1.dir\CheckIncludeFile.c.o   -c C:\Users\james\Desktop\dlib-19.6\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c
+Linking C executable cmTC_2f1c1.js
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_2f1c1.dir\link.txt --verbose=1
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat  -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0    @CMakeFiles\cmTC_2f1c1.dir\objects1.rsp  -o cmTC_2f1c1.js 
+mingw32-make.exe[1]: Leaving directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file stddef.h exists passed with the following output:
+Change Dir: C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_67983/fast"
+C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_67983.dir\build.make CMakeFiles/cmTC_67983.dir/build
+mingw32-make.exe[1]: Entering directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_67983.dir/CheckIncludeFile.c.o
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat   -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0   -o CMakeFiles\cmTC_67983.dir\CheckIncludeFile.c.o   -c C:\Users\james\Desktop\dlib-19.6\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c
+Linking C executable cmTC_67983.js
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_67983.dir\link.txt --verbose=1
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat  -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0    @CMakeFiles\cmTC_67983.dir\objects1.rsp  -o cmTC_67983.js 
+mingw32-make.exe[1]: Leaving directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+
+
+Determining size of void* passed with the following output:
+Change Dir: C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_21c1c/fast"
+C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_21c1c.dir\build.make CMakeFiles/cmTC_21c1c.dir/build
+mingw32-make.exe[1]: Entering directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_21c1c.dir/SIZE_OF_VOID_PTR.c.o
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat   -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0   -o CMakeFiles\cmTC_21c1c.dir\SIZE_OF_VOID_PTR.c.o   -c C:\Users\james\Desktop\dlib-19.6\build\CMakeFiles\CheckTypeSize\SIZE_OF_VOID_PTR.c
+Linking C executable cmTC_21c1c.js
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_21c1c.dir\link.txt --verbose=1
+C:\Users\james\emsdk\emscripten\1.38.10\emcc.bat  -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s WASM=0    @CMakeFiles\cmTC_21c1c.dir\objects1.rsp  -o cmTC_21c1c.js 
+mingw32-make.exe[1]: Leaving directory 'C:/Users/james/Desktop/dlib-19.6/build/CMakeFiles/CMakeTmp'
+
+
