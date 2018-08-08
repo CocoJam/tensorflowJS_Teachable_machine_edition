@@ -4,6 +4,8 @@
 #include <dlib/matrix.h>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <typeinfo>
 //em++ -std=c++17 --bind -L lib/dlib/build/dlib/libdlib.so -I lib/dlib Matrix.cpp -o ../WASM/dlib.js -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s WASM=1 -s ALLOW_MEMORY_GROWTH=1
 // em++ -std=c++17 --bind -L lib/dlib/build/dlib/libdlib.so -I lib/dlib Matrix.cpp -o dlib.js -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s WASM=1 -s ALLOW_MEMORY_GROWTH=1
 // using emscripten;
@@ -15,8 +17,6 @@ class matrix
   public:
     matrix(const dlib::matrix<T> mat)
     {
-        std::cout << mat << std::endl;
-        printf("");
         this->mat = mat;
     }
 
@@ -50,8 +50,8 @@ class matrix
     }
     void view()
     {
-    
-        std::cout << add(this).get_mat() << std::endl;
+
+        std::cout << this->mat << std::endl;
         std::cout << size_tostring(this) << std::endl;
 
         printf("");
@@ -66,18 +66,41 @@ class matrix
         return "(" + std::to_string((*m1).get_mat().nr()) + ", " + std::to_string((*m1).get_mat().nc()) + ")";
     }
 
-    Em_matrix::matrix<T> add(Em_matrix::matrix<T> *m1)
+    // Em_matrix::matrix<T> add(Em_matrix::matrix<T> *m1)
+    // {
+    //     Em_matrix::matrix<T> m2 = this->operation(m1, std::plus<dlib::matrix<T>>());
+    //     std::cout << m2.get_mat() << std::endl;
+    //     return m2;
+    // }
+
+    template<typename N>
+    Em_matrix::matrix<T> add(N *m1)
     {
-        Em_matrix::matrix<T> m2 = generate(this,m1, std::plus<dlib::matrix<T>>());
+        Em_matrix::matrix<T> m2 = this->operation(m1, std::plus<dlib::matrix<T>>());
+        std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
     Em_matrix::matrix<T> minus(Em_matrix::matrix<T> *m1)
     {
-        Em_matrix::matrix<T> m2 = generate<std::minus<dlib::matrix<T>>>(this, m1, std::minus<dlib::matrix<T>>());
+        Em_matrix::matrix<T> m2 = this->operation(*this, m1, std::minus<dlib::matrix<T>>());
         return m2;
     }
 
+    Em_matrix::matrix<T> divides(Em_matrix::matrix<T> *m1)
+    {
+        Em_matrix::matrix<T> m2 = this->operation(m1, std::divides<dlib::matrix<T>>());
+        return m2;
+    }
+
+    Em_matrix::matrix<T> multiplies(Em_matrix::matrix<T> *m1)
+    {
+        std::cout << (this->mat) * (*m1).get_mat() << std::endl;
+        std::cout << size_tostring(this) << std::endl;
+        printf("");
+        Em_matrix::matrix<T> m2 = this->operation(m1, std::multiplies<dlib::matrix<T>>());
+        return m2;
+    }
     //Not functioning maybe needed some buffer exchange method.
     emscripten::val formJSObject()
     {
@@ -96,7 +119,6 @@ class matrix
   private:
     dlib::matrix<T> mat;
     std::vector<T> vec;
-    // emscripten::val js_object;
     dlib::matrix<T> emscripten_val_to_mat(const emscripten::val &arr, const int row, const int col)
     {
 
@@ -129,47 +151,54 @@ class matrix
         this->mat = mat;
     }
 
-    template <class F>
-    Em_matrix::matrix<T> generate(Em_matrix::matrix<T> *m1, F &x)
+    template <typename N>
+    Em_matrix::matrix<T> operation(N *m1, std::function<dlib::matrix<T>(dlib::matrix<T>, N)> oper)
     {
-        if (size_check(m1))
+        dlib::matrix<T> rm;
+        if (std::is_same_v<N, Em_matrix::matrix<T>>)
         {
-            Em_matrix::matrix<T> m2(x(this->mat, (*m1).get_mat()));
-            return m2;
+            if (size_check(*m1))
+            {
+                std::cout << this->mat << std::endl;
+                printf("");
+                rm = oper(this->mat, (*m1).get_mat());
+                goto endoperation;
+            }
+            throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
         }
         else
         {
-            throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
+            if (std::is_same_v<N, T>)
+            {
+                 rm = oper(this->mat,(*m1));
+                 goto endoperation;
+            }
+            else{
+                throw std::runtime_error(typeid(N).name());
+            }
         }
+    endoperation:
+        Em_matrix::matrix<T> m2(rm);
+        return m2;
     }
 
-    // template <class F>
-    // Em_matrix::matrix<T> generate(Em_matrix::matrix<T> *m1, Em_matrix::matrix<T> *m2, F &x)
-    // {
-    //     if (size_check(m1))
-    //     {
-    //         Em_matrix::matrix<T> m2(x((*m1).get_mat(), (*m2).get_mat()));
-    //         return m2;
-    //     }
-    //     else
-    //     {
-    //         throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
-    //     }
-    // }
-        // template <class F>
-    Em_matrix::matrix<T> generate(Em_matrix::matrix<T> *m1, Em_matrix::matrix<T> *m2, std::operator x)
+    template <class N>
+    Em_matrix::matrix<T> operation(N *m1, Em_matrix::matrix<T> *m2, std::function<dlib::matrix<T>(N, dlib::matrix<T>)> oper)
     {
-        if (size_check(m1))
+        if ((*m1)->getType() != Em_matrix::matrix<T>(*m1) || size_check(*m1))
         {
-            Em_matrix::matrix<T> m2(x((*m1).get_mat(), (*m2).get_mat()));
-            return m2;
+            dlib::matrix<T> rm = oper((*m1).get_mat(), (*m2).get_mat());
+            Em_matrix::matrix<T> m3(rm);
+            return m3;
         }
         else
         {
             throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
         }
     }
+    // }
 };
+
 }; // namespace Em_matrix
 
 // template <typename T>

@@ -45,7 +45,11 @@ EMSCRIPTEN_BINDINGS(what_is_this_name_for)
         // .function("add", &Em_matrix::matrix<double>::operator+)
         .function("formJSObject", &Em_matrix::matrix<double>::formJSObject)
         .function("veiw", &Em_matrix::matrix<double>::view)
-        // .function("add", &Em_matrix::matrix<double>::add)
+        // .function("add", emscripten::select_overload<Em_matrix::matrix<double>(Em_matrix::matrix<double>*)>(&Em_matrix::matrix<double>::add) , emscripten::allow_raw_pointers())
+        // .function("add", emscripten::select_overload<Em_matrix::matrix<double>(double *)>(&Em_matrix::matrix<double>::add) , emscripten::allow_raw_pointers())
+        .function("add", &Em_matrix::matrix<double>::add , emscripten::allow_raw_pointers())
+        .function("divides", &Em_matrix::matrix<double>::divides, emscripten::allow_raw_pointers())
+        .function("multiplies", &Em_matrix::matrix<double>::multiplies, emscripten::allow_raw_pointers())
         .function("nr", &Em_matrix::matrix<double>::nr)
         .function("nc", &Em_matrix::matrix<double>::nc);
     // .function("get_val", &Em_matrix::matrix<double>::get_val);
