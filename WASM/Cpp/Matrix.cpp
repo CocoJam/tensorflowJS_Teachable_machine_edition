@@ -30,8 +30,13 @@ class matrix
     }
     void set_matrix(const emscripten::val &vec, int row, int col)
     {
-        set_size(row, col);
+        // set_size(row, col);
         this->mat = emscripten_val_to_mat(vec, nr(), nc());
+    }
+    void set_matrix(dlib::matrix<T> mat)
+    {
+        // set_size(row, col);
+        this->mat = mat;
     }
     void set_size(int row, int col)
     {
@@ -48,6 +53,9 @@ class matrix
     int nc()
     {
         return this->mat.nc();
+    }
+    void inv(){
+        this->set_matrix(dlib::inv(this->mat));
     }
     void view()
     {
@@ -69,27 +77,50 @@ class matrix
 
     Em_matrix::matrix<T> add(Em_matrix::matrix<T> *m1)
     {
-        Em_matrix::matrix<T> m2 = this->operation(m1, std::plus<dlib::matrix<T>>());
+        Em_matrix::matrix<T> m2 = this->operation<Em_matrix::matrix<T>, dlib::matrix<T>>(m1, std::plus<dlib::matrix<T>>());
         std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
     Em_matrix::matrix<T> add(const emscripten::val &m1)
     {
-        Em_matrix::matrix<T> m2 = this->operation(m1, std::plus<dlib::matrix<T>>());
+        dlib::matrix<T> rm;
+        T scala = m1.as<T>();
+        rm = this->mat + scala;
+        Em_matrix::matrix<T> m2(rm);
         std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
     Em_matrix::matrix<T> minus(Em_matrix::matrix<T> *m1)
     {
-        Em_matrix::matrix<T> m2 = this->operation(*this, m1, std::minus<dlib::matrix<T>>());
+        Em_matrix::matrix<T> m2 = this->operation<Em_matrix::matrix<T>, dlib::matrix<T>>( m1, std::minus<dlib::matrix<T>>());
+        return m2;
+    }
+
+    Em_matrix::matrix<T> minus(const emscripten::val &m1)
+    {
+        dlib::matrix<T> rm;
+        T scala = m1.as<T>();
+        rm = this->mat - scala;
+        Em_matrix::matrix<T> m2(rm);
+        std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
     Em_matrix::matrix<T> divides(Em_matrix::matrix<T> *m1)
     {
-        Em_matrix::matrix<T> m2 = this->operation(m1, std::divides<dlib::matrix<T>>());
+        Em_matrix::matrix<T> m2 = this->operation<Em_matrix::matrix<T>, dlib::matrix<T>>(m1, std::divides<dlib::matrix<T>>());
+        return m2;
+    }
+
+    Em_matrix::matrix<T> divides(const emscripten::val &m1)
+    {
+        dlib::matrix<T> rm;
+        T scala = m1.as<T>();
+        rm = this->mat / scala;
+        Em_matrix::matrix<T> m2(rm);
+        std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
@@ -98,9 +129,20 @@ class matrix
         std::cout << (this->mat) * (*m1).get_mat() << std::endl;
         std::cout << size_tostring(this) << std::endl;
         printf("");
-        Em_matrix::matrix<T> m2 = this->operation(m1, std::multiplies<dlib::matrix<T>>());
+        Em_matrix::matrix<T> m2 = this->operation<Em_matrix::matrix<T>, dlib::matrix<T>>(m1, std::multiplies<dlib::matrix<T>>());
         return m2;
     }
+
+    Em_matrix::matrix<T> multiplies(const emscripten::val &m1)
+    {
+        dlib::matrix<T> rm;
+        T scala = m1.as<T>();
+        rm = this->mat * scala;
+        Em_matrix::matrix<T> m2(rm);
+        std::cout << m2.get_mat() << std::endl;
+        return m2;
+    }
+
     //Not functioning maybe needed some buffer exchange method.
     emscripten::val formJSObject()
     {
@@ -114,6 +156,10 @@ class matrix
         // printf("");
         object.set("array", array);
         return object;
+    }
+        dlib::matrix<T> &get_mat()
+    {
+        return this->mat;
     }
 
   private:
@@ -142,61 +188,53 @@ class matrix
         memoryView.call<void>("set", arr);
         return vec;
     }
-    dlib::matrix<T> &get_mat()
-    {
-        return this->mat;
-    }
+
     void set_mat(dlib::matrix<T> mat)
     {
         this->mat = mat;
     }
 
-    // template<typename N>
-    Em_matrix::matrix<T> operation(Em_matrix::matrix<T> *m1, std::function<dlib::matrix<T>(dlib::matrix<T>, dlib::matrix<T>)> oper)
+    template <typename N, typename K>
+    Em_matrix::matrix<T> operation(N *m1, std::function<dlib::matrix<T>(dlib::matrix<T>, K)> oper)
     {
         dlib::matrix<T> rm;
-        // if (std::is_same_v<N, Em_matrix::matrix<T>>)
-        // {
-        if (size_check(*m1))
+        if (std::is_same_v<N, Em_matrix::matrix<T>>)
         {
-            std::cout << this->mat << std::endl;
-            printf("");
-            rm = oper(this->mat, (*m1).get_mat());
-            goto endoperation;
+            if (size_check(*m1))
+            {
+                std::cout << this->mat << std::endl;
+                printf("");
+                rm = oper(this->mat, (*m1).get_mat());
+                goto endoperation;
+            }
+            throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
         }
-        throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
-        // }
-        // else
-        // {
-        //     if (std::is_same_v<N, T>)
-        //     {
-        //         rm = oper(this->mat, (*m1));
-        //         goto endoperation;
-        //     }
-        //     else
-        //     {
-        //         throw std::runtime_error(typeid(N).name());
-        //     }
-        // }
+        else
+        {
+            if (std::is_same_v<K, T>)
+            {
+                std::cout << "scala" << std::endl;
+                printf("");
+                // rm = oper(this->mat, (*m1));
+                goto endoperation;
+            }
+            else
+            {
+                throw std::runtime_error(typeid(N).name());
+            }
+        }
     endoperation:
         Em_matrix::matrix<T> m2(rm);
         return m2;
     }
-
-    Em_matrix::matrix<T> operation(const emscripten::val &construct, std::function<dlib::matrix<T>(dlib::matrix<T>,  dlib::matrix<T>)> oper)
+    template <typename N>
+    Em_matrix::matrix<T> scala_operation(const emscripten::val &m1, std::function<dlib::matrix<T>(dlib::matrix<T>, N)> oper)
     {
-        // emscripten::val constructor = element["constructor"];
         dlib::matrix<T> rm;
-        if (emscripten::val::global("ArrayBuffer").call<bool>("isView", construct))
-        {
-        }
-        // else if(emscripten::val::global("ArrayBuffer").call<void>("isView",construct)){
-        // }
-        else
-        {
-            T scala = construct.as<T>();
-            rm = oper(this->mat, scala);
-        }
+        std::cout << "scala" << std::endl;
+        printf("");
+        T scala = m1.as<T>();
+        rm = oper(this->mat, scala);
         Em_matrix::matrix<T> m2(rm);
         return m2;
     }
@@ -249,6 +287,51 @@ class matrix
     // }
     // }
 };
+
+
+template<typename T>
+Em_matrix::matrix<T> identity_matrix(int num){
+    return  Em_matrix::matrix<T>(  dlib::identity_matrix<T>(num));
+}
+
+template<typename T>
+Em_matrix::matrix<T> ones_matrix(const int row ,const int col){
+    return Em_matrix::matrix<T>(  dlib::ones_matrix<T>(row, col));
+}
+
+template<typename T>
+Em_matrix::matrix<T> randm(int row ,int col){
+    return  Em_matrix::matrix<T>( dlib::randm(row, col));
+}
+
+template<typename T>
+Em_matrix::matrix<T> pointwise_multiply(Em_matrix::matrix<T> *m1 ,Em_matrix::matrix<T> *m2){
+    return  Em_matrix::matrix<T>( dlib::pointwise_multiply((*m1).get_mat(), (*m2).get_mat()));
+}
+template<typename T>
+Em_matrix::matrix<T> trans(Em_matrix::matrix<T> *m1 ){
+    return  Em_matrix::matrix<T>( dlib::trans((*m1).get_mat()));
+}
+template<typename T>
+Em_matrix::matrix<T> round(Em_matrix::matrix<T> *m1 ){
+    return  Em_matrix::matrix<T>( dlib::round((*m1).get_mat()));
+}
+template<typename T>
+Em_matrix::matrix<T> ceil(Em_matrix::matrix<T> *m1 ){
+    return  Em_matrix::matrix<T>(  dlib::ceil((*m1).get_mat()));
+}
+template<typename T>
+Em_matrix::matrix<T> floor(Em_matrix::matrix<T> *m1 ){
+    return  Em_matrix::matrix<T>(  dlib::floor((*m1).get_mat()));
+}
+template<typename T>
+Em_matrix::matrix<T> diag(Em_matrix::matrix<T> *m1 ){
+    return  Em_matrix::matrix<T>(  dlib::diag((*m1).get_mat()));
+}
+// template<typename T>
+// Em_matrix::matrix<T> rowm(Em_matrix::matrix<T> *m1, int row ){
+//     return  Em_matrix::matrix<T>(  dlib::rowm((*m1).get_mat()),row);
+// }
 
 }; // namespace Em_matrix
 

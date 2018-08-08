@@ -1,4 +1,3 @@
-
 #include <emscripten.h>
 #include <stdio.h>
 #include <emscripten/bind.h>
@@ -35,29 +34,37 @@ double type_check(const emscripten::val &element)
 
 EMSCRIPTEN_BINDINGS(what_is_this_name_for)
 {
-    emscripten::function("type_check", &type_check);
+    // emscripten::function("type_check", &Em_matrix::type_check<double>);
+    emscripten::function("identity_matrix", &Em_matrix::identity_matrix<double>);
+    emscripten::function("ones_matrix", &Em_matrix::ones_matrix<double>);
+    emscripten::function("randm", &Em_matrix::randm<double>);
+    emscripten::function("pointwise_multiply", &Em_matrix::pointwise_multiply<double>, emscripten::allow_raw_pointers());
+    emscripten::function("trans", &Em_matrix::trans<double>,emscripten::allow_raw_pointers());
+    emscripten::function("round", &Em_matrix::round<double>,emscripten::allow_raw_pointers());
+    emscripten::function("ceil", &Em_matrix::ceil<double>,emscripten::allow_raw_pointers());
+    emscripten::function("floor", &Em_matrix::floor<double>,emscripten::allow_raw_pointers());
+    emscripten::function("diag", &Em_matrix::diag<double>,emscripten::allow_raw_pointers());
+    // emscripten::function("rowm", &Em_matrix::rowm<double>);
+
     emscripten::class_<Em_matrix::matrix<double>>("matrix")
         .constructor<emscripten::val, int, int>()
         .constructor<int, int>()
-        .function("set_matrix", &Em_matrix::matrix<double>::set_matrix)
+        .function("set_matrix", emscripten::select_overload<void(const emscripten::val &, int, int)>(&Em_matrix::matrix<double>::set_matrix))
+        .function("set_matrix", emscripten::select_overload<void(dlib::matrix<double>)>(&Em_matrix::matrix<double>::set_matrix))
         .function("set_size", &Em_matrix::matrix<double>::set_size)
         .function("loc", &Em_matrix::matrix<double>::operator())
-        // .function("add", &Em_matrix::matrix<double>::operator+)
         .function("formJSObject", &Em_matrix::matrix<double>::formJSObject)
         .function("veiw", &Em_matrix::matrix<double>::view)
-        // .function("add", emscripten::select_overload<Em_matrix::matrix<double>(Em_matrix::matrix<double>*)>(&Em_matrix::matrix<double>::add) , emscripten::allow_raw_pointers())
-        // .function("add", emscripten::select_overload<Em_matrix::matrix<double>(emscripten::val&)>(&Em_matrix::matrix<double>::add))
-        .function("add", &Em_matrix::matrix<double>::add )
-        .function("divides", &Em_matrix::matrix<double>::divides, emscripten::allow_raw_pointers())
-        .function("multiplies", &Em_matrix::matrix<double>::multiplies, emscripten::allow_raw_pointers())
+        .function("add", emscripten::select_overload<Em_matrix::matrix<double>(Em_matrix::matrix<double>*)>(&Em_matrix::matrix<double>::add) , emscripten::allow_raw_pointers())
+        .function("add", emscripten::select_overload<Em_matrix::matrix<double>(const emscripten::val &)> (&Em_matrix::matrix<double>::add), emscripten::allow_raw_pointers())
+        .function("minus", emscripten::select_overload<Em_matrix::matrix<double>(Em_matrix::matrix<double>*)>(&Em_matrix::matrix<double>::minus) , emscripten::allow_raw_pointers())
+        .function("minus", emscripten::select_overload<Em_matrix::matrix<double>(const emscripten::val &)> (&Em_matrix::matrix<double>::minus), emscripten::allow_raw_pointers())
+        .function("divides", emscripten::select_overload<Em_matrix::matrix<double>(Em_matrix::matrix<double>*)>(&Em_matrix::matrix<double>::divides) , emscripten::allow_raw_pointers())
+        .function("divides", emscripten::select_overload<Em_matrix::matrix<double>(const emscripten::val &)> (&Em_matrix::matrix<double>::divides), emscripten::allow_raw_pointers())
+        .function("multiplies", emscripten::select_overload<Em_matrix::matrix<double>(Em_matrix::matrix<double>*)>(&Em_matrix::matrix<double>::multiplies) , emscripten::allow_raw_pointers())
+        .function("multiplies", emscripten::select_overload<Em_matrix::matrix<double>(const emscripten::val &)> (&Em_matrix::matrix<double>::multiplies), emscripten::allow_raw_pointers())
         .function("nr", &Em_matrix::matrix<double>::nr)
-        .function("nc", &Em_matrix::matrix<double>::nc);
-    // .function("get_val", &Em_matrix::matrix<double>::get_val);
+        .function("nc", &Em_matrix::matrix<double>::nc)
+        .function("inv", &Em_matrix::matrix<double>::inv);
 
-    emscripten::class_<dlib::matrix<double>>("Matrix")
-        .constructor<int, int>();
-    //     .function("nr", &dlib::matrix<double>::nr);
-    // emscripten::class_<Em_matrix::ExtendedMatrix<double>, emscripten::base<dlib::matrix<double>>>("ExMatrix")
-    //     .constructor<int, int>()
-    //      .function("nr", &Em_matrix::ExtendedMatrix<double>::nr);
 }
