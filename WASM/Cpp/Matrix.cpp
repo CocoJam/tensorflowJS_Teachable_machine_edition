@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <emscripten/bind.h>
 #include <dlib/matrix.h>
+#include <functional>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -66,15 +67,14 @@ class matrix
         return "(" + std::to_string((*m1).get_mat().nr()) + ", " + std::to_string((*m1).get_mat().nc()) + ")";
     }
 
-    // Em_matrix::matrix<T> add(Em_matrix::matrix<T> *m1)
-    // {
-    //     Em_matrix::matrix<T> m2 = this->operation(m1, std::plus<dlib::matrix<T>>());
-    //     std::cout << m2.get_mat() << std::endl;
-    //     return m2;
-    // }
+    Em_matrix::matrix<T> add(Em_matrix::matrix<T> *m1)
+    {
+        Em_matrix::matrix<T> m2 = this->operation(m1, std::plus<dlib::matrix<T>>());
+        std::cout << m2.get_mat() << std::endl;
+        return m2;
+    }
 
-    template<typename N>
-    Em_matrix::matrix<T> add(N *m1)
+    Em_matrix::matrix<T> add(const emscripten::val &m1)
     {
         Em_matrix::matrix<T> m2 = this->operation(m1, std::plus<dlib::matrix<T>>());
         std::cout << m2.get_mat() << std::endl;
@@ -151,51 +151,102 @@ class matrix
         this->mat = mat;
     }
 
-    template <typename N>
-    Em_matrix::matrix<T> operation(N *m1, std::function<dlib::matrix<T>(dlib::matrix<T>, N)> oper)
+    // template<typename N>
+    Em_matrix::matrix<T> operation(Em_matrix::matrix<T> *m1, std::function<dlib::matrix<T>(dlib::matrix<T>, dlib::matrix<T>)> oper)
     {
         dlib::matrix<T> rm;
-        if (std::is_same_v<N, Em_matrix::matrix<T>>)
+        // if (std::is_same_v<N, Em_matrix::matrix<T>>)
+        // {
+        if (size_check(*m1))
         {
-            if (size_check(*m1))
-            {
-                std::cout << this->mat << std::endl;
-                printf("");
-                rm = oper(this->mat, (*m1).get_mat());
-                goto endoperation;
-            }
-            throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
+            std::cout << this->mat << std::endl;
+            printf("");
+            rm = oper(this->mat, (*m1).get_mat());
+            goto endoperation;
         }
-        else
-        {
-            if (std::is_same_v<N, T>)
-            {
-                 rm = oper(this->mat,(*m1));
-                 goto endoperation;
-            }
-            else{
-                throw std::runtime_error(typeid(N).name());
-            }
-        }
+        throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
+        // }
+        // else
+        // {
+        //     if (std::is_same_v<N, T>)
+        //     {
+        //         rm = oper(this->mat, (*m1));
+        //         goto endoperation;
+        //     }
+        //     else
+        //     {
+        //         throw std::runtime_error(typeid(N).name());
+        //     }
+        // }
     endoperation:
         Em_matrix::matrix<T> m2(rm);
         return m2;
     }
 
-    template <class N>
-    Em_matrix::matrix<T> operation(N *m1, Em_matrix::matrix<T> *m2, std::function<dlib::matrix<T>(N, dlib::matrix<T>)> oper)
+    Em_matrix::matrix<T> operation(const emscripten::val &construct, std::function<dlib::matrix<T>(dlib::matrix<T>,  dlib::matrix<T>)> oper)
     {
-        if ((*m1)->getType() != Em_matrix::matrix<T>(*m1) || size_check(*m1))
+        // emscripten::val constructor = element["constructor"];
+        dlib::matrix<T> rm;
+        if (emscripten::val::global("ArrayBuffer").call<bool>("isView", construct))
         {
-            dlib::matrix<T> rm = oper((*m1).get_mat(), (*m2).get_mat());
-            Em_matrix::matrix<T> m3(rm);
-            return m3;
         }
+        // else if(emscripten::val::global("ArrayBuffer").call<void>("isView",construct)){
+        // }
         else
         {
-            throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
+            T scala = construct.as<T>();
+            rm = oper(this->mat, scala);
         }
+        Em_matrix::matrix<T> m2(rm);
+        return m2;
     }
+
+    // template <typename N>
+    // Em_matrix::matrix<T> operation(N &m1, std::function<dlib::matrix<T>(dlib::matrix<T>, N)> oper)
+    // {
+    //     dlib::matrix<T> rm;
+    //     if (std::is_same_v<N, Em_matrix::matrix<T>>)
+    //     {
+    //         if (size_check(*m1))
+    //         {
+    //             std::cout << this->mat << std::endl;
+    //             printf("");
+    //             rm = oper(this->mat, (*m1).get_mat());
+    //             goto endoperation;
+    //         }
+    //         throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
+    //     }
+    //     else
+    //     {
+    //         if (std::is_same_v<N, T>)
+    //         {
+    //             rm = oper(this->mat, (*m1));
+    //             goto endoperation;
+    //         }
+    //         else
+    //         {
+    //             throw std::runtime_error(typeid(N).name() );
+    //         }
+    //     }
+    // endoperation:
+    //     Em_matrix::matrix<T> m2(rm);
+    //     return m2;
+    // }
+
+    // template <class N>
+    // Em_matrix::matrix<T> operation(N *m1, Em_matrix::matrix<T> *m2, std::function<dlib::matrix<T>(N, dlib::matrix<T>)> oper)
+    // {
+    //     if ((*m1)->getType() != Em_matrix::matrix<T>(*m1) || size_check(*m1))
+    //     {
+    //         dlib::matrix<T> rm = oper((*m1).get_mat(), (*m2).get_mat());
+    //         Em_matrix::matrix<T> m3(rm);
+    //         return m3;
+    //     }
+    //     else
+    //     {
+    //         throw std::runtime_error("size mismatch execptions: A matrix shape: " + size_tostring(this) + " , B matrix shape: " + size_tostring(m1));
+    //     }
+    // }
     // }
 };
 
