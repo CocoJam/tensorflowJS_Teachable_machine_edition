@@ -1,0 +1,9 @@
+   <!-- CDN Resources (1.1MB) -->
+    <!-- NOTE: The ORDER is important! -->
+    <!-- CDN Minified Resources (394KB) -->
+ <script src="https://fb.me/react-with-addons-15.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.0.4/redux.min.js"></script>
+    <!--   ::Added react-redux-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.min.js"></script>
+    <script src="https://fb.me/react-dom-0.14.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>

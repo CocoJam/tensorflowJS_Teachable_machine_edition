@@ -57,10 +57,9 @@ using namespace std;
 
 // ----------------------------------------------------------------------------------------
 
-void main()
+void mainMethod()
 {
-    try
-    {
+
         // There are many useful convenience functions in this namespace.  They all
         // perform simple access or modify operations on the nodes of a bayesian network. 
         // You don't have to use them but they are convenient and they also will check for
@@ -194,16 +193,16 @@ void main()
 
 
         // now print out the probabilities for each node
-        cout << "Using the join tree algorithm:\n";
-        cout << "p(A=1) = " << solution.probability(A)(1) << endl;
-        cout << "p(A=0) = " << solution.probability(A)(0) << endl;
-        cout << "p(B=1) = " << solution.probability(B)(1) << endl;
-        cout << "p(B=0) = " << solution.probability(B)(0) << endl;
-        cout << "p(C=1) = " << solution.probability(C)(1) << endl;
-        cout << "p(C=0) = " << solution.probability(C)(0) << endl;
-        cout << "p(D=1) = " << solution.probability(D)(1) << endl;
-        cout << "p(D=0) = " << solution.probability(D)(0) << endl;
-        cout << "\n\n\n";
+        // cout << "Using the join tree algorithm:\n";
+        // cout << "p(A=1) = " << solution.probability(A)(1) << endl;
+        // cout << "p(A=0) = " << solution.probability(A)(0) << endl;
+        // cout << "p(B=1) = " << solution.probability(B)(1) << endl;
+        // cout << "p(B=0) = " << solution.probability(B)(0) << endl;
+        // cout << "p(C=1) = " << solution.probability(C)(1) << endl;
+        // cout << "p(C=0) = " << solution.probability(C)(0) << endl;
+        // cout << "p(D=1) = " << solution.probability(D)(1) << endl;
+        // cout << "p(D=0) = " << solution.probability(D)(0) << endl;
+        // cout << "\n\n\n";
 
 
         // Now to make things more interesting let's say that we have discovered that the C 
@@ -218,16 +217,16 @@ void main()
         bayesian_network_join_tree solution_with_evidence(bn, join_tree);
 
         // now print out the probabilities for each node
-        cout << "Using the join tree algorithm:\n";
-        cout << "p(A=1 | C=1) = " << solution_with_evidence.probability(A)(1) << endl;
-        cout << "p(A=0 | C=1) = " << solution_with_evidence.probability(A)(0) << endl;
-        cout << "p(B=1 | C=1) = " << solution_with_evidence.probability(B)(1) << endl;
-        cout << "p(B=0 | C=1) = " << solution_with_evidence.probability(B)(0) << endl;
-        cout << "p(C=1 | C=1) = " << solution_with_evidence.probability(C)(1) << endl;
-        cout << "p(C=0 | C=1) = " << solution_with_evidence.probability(C)(0) << endl;
-        cout << "p(D=1 | C=1) = " << solution_with_evidence.probability(D)(1) << endl;
-        cout << "p(D=0 | C=1) = " << solution_with_evidence.probability(D)(0) << endl;
-        cout << "\n\n\n";
+        // cout << "Using the join tree algorithm:\n";
+        // cout << "p(A=1 | C=1) = " << solution_with_evidence.probability(A)(1) << endl;
+        // cout << "p(A=0 | C=1) = " << solution_with_evidence.probability(A)(0) << endl;
+        // cout << "p(B=1 | C=1) = " << solution_with_evidence.probability(B)(1) << endl;
+        // cout << "p(B=0 | C=1) = " << solution_with_evidence.probability(B)(0) << endl;
+        // cout << "p(C=1 | C=1) = " << solution_with_evidence.probability(C)(1) << endl;
+        // cout << "p(C=0 | C=1) = " << solution_with_evidence.probability(C)(0) << endl;
+        // cout << "p(D=1 | C=1) = " << solution_with_evidence.probability(D)(1) << endl;
+        // cout << "p(D=0 | C=1) = " << solution_with_evidence.probability(D)(0) << endl;
+        // cout << "\n\n\n";
 
         // Note that when we made our solution_with_evidence object we reused our join_tree object.
         // This saves us the time it takes to calculate the join_tree object from scratch.  But
@@ -296,24 +295,24 @@ void main()
                 ++D_count;
         }
 
-        cout << "Using the approximate Gibbs Sampler algorithm:\n";
-        cout << "p(A=1 | C=1) = " << (double)A_count/(double)rounds << endl;
-        cout << "p(B=1 | C=1) = " << (double)B_count/(double)rounds << endl;
-        cout << "p(C=1 | C=1) = " << (double)C_count/(double)rounds << endl;
-        cout << "p(D=1 | C=1) = " << (double)D_count/(double)rounds << endl;
-    }
-    catch (std::exception& e)
-    {
-        cout << "exception thrown: " << endl;
-        cout << e.what() << endl;
-        cout << "hit enter to terminate" << endl;
-        cin.get();
-    }
+        // cout << "Using the approximate Gibbs Sampler algorithm:\n";
+        // cout << "p(A=1 | C=1) = " << (double)A_count/(double)rounds << endl;
+        // cout << "p(B=1 | C=1) = " << (double)B_count/(double)rounds << endl;
+        // cout << "p(C=1 | C=1) = " << (double)C_count/(double)rounds << endl;
+        // cout << "p(D=1 | C=1) = " << (double)D_count/(double)rounds << endl;
+    
+    // catch (std::exception& e)
+    // {
+    //     cout << "exception thrown: " << endl;
+    //     cout << e.what() << endl;
+    //     cout << "hit enter to terminate" << endl;
+    //     cin.get();
+    // }
 }
 
 EMSCRIPTEN_BINDINGS(what_is_this_name_for)
 {
-    emscripten::function("testLength", &main);
+    emscripten::function("testLength", &mainMethod);
 }
 
 
