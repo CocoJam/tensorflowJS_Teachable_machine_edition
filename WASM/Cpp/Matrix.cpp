@@ -7,6 +7,11 @@
 #include <string>
 #include <type_traits>
 #include <typeinfo>
+
+#define print(x) \
+std::cout << x << std::endl; printf("");
+
+
 //em++ -std=c++17 --bind -L lib/dlib/build/dlib/libdlib.so -I lib/dlib Matrix.cpp -o ../WASM/dlib.js -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s WASM=1 -s ALLOW_MEMORY_GROWTH=1
 // em++ -std=c++17 --bind -L lib/dlib/build/dlib/libdlib.so -I lib/dlib Matrix.cpp -o dlib.js -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s WASM=1 -s ALLOW_MEMORY_GROWTH=1
 // using emscripten;
@@ -59,11 +64,7 @@ class matrix
     }
     void view()
     {
-
-        std::cout << this->mat << std::endl;
-        std::cout << size_tostring(this) << std::endl;
-
-        printf("");
+        print(this->mat);
     }
     // // template <typename N>
     bool size_check(Em_matrix::matrix<T> m1)
@@ -77,18 +78,20 @@ class matrix
 
     Em_matrix::matrix<T> add(Em_matrix::matrix<T> *m1)
     {
+        print("matrix element add");
         Em_matrix::matrix<T> m2 = this->operation<Em_matrix::matrix<T>, dlib::matrix<T>>(m1, std::plus<dlib::matrix<T>>());
-        std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
+    //overloaded bugs it matches emscripten::val first other than pointers.
     Em_matrix::matrix<T> add(const emscripten::val &m1)
-    {
+    {   
+        print("emscripten element add");
+        
         dlib::matrix<T> rm;
         T scala = m1.as<T>();
         rm = this->mat + scala;
         Em_matrix::matrix<T> m2(rm);
-        std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
@@ -104,7 +107,6 @@ class matrix
         T scala = m1.as<T>();
         rm = this->mat - scala;
         Em_matrix::matrix<T> m2(rm);
-        std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
@@ -120,15 +122,11 @@ class matrix
         T scala = m1.as<T>();
         rm = this->mat / scala;
         Em_matrix::matrix<T> m2(rm);
-        std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
     Em_matrix::matrix<T> multiplies(Em_matrix::matrix<T> *m1)
     {
-        std::cout << (this->mat) * (*m1).get_mat() << std::endl;
-        std::cout << size_tostring(this) << std::endl;
-        printf("");
         Em_matrix::matrix<T> m2 = this->operation<Em_matrix::matrix<T>, dlib::matrix<T>>(m1, std::multiplies<dlib::matrix<T>>());
         return m2;
     }
@@ -139,7 +137,6 @@ class matrix
         T scala = m1.as<T>();
         rm = this->mat * scala;
         Em_matrix::matrix<T> m2(rm);
-        std::cout << m2.get_mat() << std::endl;
         return m2;
     }
 
@@ -202,8 +199,7 @@ class matrix
         {
             if (size_check(*m1))
             {
-                std::cout << this->mat << std::endl;
-                printf("");
+                print(this->mat);
                 rm = oper(this->mat, (*m1).get_mat());
                 goto endoperation;
             }
@@ -213,8 +209,7 @@ class matrix
         {
             if (std::is_same_v<K, T>)
             {
-                std::cout << "scala" << std::endl;
-                printf("");
+                print("scalar Matrix");
                 // rm = oper(this->mat, (*m1));
                 goto endoperation;
             }
@@ -231,8 +226,7 @@ class matrix
     Em_matrix::matrix<T> scala_operation(const emscripten::val &m1, std::function<dlib::matrix<T>(dlib::matrix<T>, N)> oper)
     {
         dlib::matrix<T> rm;
-        std::cout << "scala" << std::endl;
-        printf("");
+        print("scalar emscripten")
         T scala = m1.as<T>();
         rm = oper(this->mat, scala);
         Em_matrix::matrix<T> m2(rm);
