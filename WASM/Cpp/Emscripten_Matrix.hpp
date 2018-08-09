@@ -1,5 +1,9 @@
 #include "Matrix.cpp"
 
+#define print(x)                 \
+    std::cout << x << std::endl; \
+    printf("");
+    
 template <typename T>
 class matrix;
 template <typename T>

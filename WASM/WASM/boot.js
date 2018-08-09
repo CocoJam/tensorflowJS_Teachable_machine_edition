@@ -1534,9 +1534,9 @@ function integrateWasmJS() {
 
   var method = 'native-wasm';
 
-  var wasmTextFile = 'dlib.wast';
-  var wasmBinaryFile = 'dlib.wasm';
-  var asmjsCodeFile = 'dlib.temp.asm.js';
+  var wasmTextFile = 'boot.wast';
+  var wasmBinaryFile = 'boot.wasm';
+  var asmjsCodeFile = 'boot.temp.asm.js';
 
   if (!isDataURI(wasmTextFile)) {
     wasmTextFile = locateFile(wasmTextFile);
@@ -1802,8 +1802,8 @@ var ASM_CONSTS = [];
 
 STATIC_BASE = GLOBAL_BASE;
 
-STATICTOP = STATIC_BASE + 32960;
-/* global initializers */  __ATINIT__.push({ func: function() { __GLOBAL__I_000101() } }, { func: function() { __GLOBAL__sub_I_Util_cpp() } }, { func: function() { __GLOBAL__sub_I_bind_cpp() } }, { func: function() { __GLOBAL__sub_I_iostream_cpp() } });
+STATICTOP = STATIC_BASE + 25056;
+/* global initializers */  __ATINIT__.push({ func: function() { __GLOBAL__I_000101() } }, { func: function() { __GLOBAL__sub_I_bind_cpp() } }, { func: function() { __GLOBAL__sub_I_iostream_cpp() } });
 
 
 
@@ -1811,7 +1811,7 @@ STATICTOP = STATIC_BASE + 32960;
 
 
 
-var STATIC_BUMP = 32960;
+var STATIC_BUMP = 25056;
 Module["STATIC_BASE"] = STATIC_BASE;
 Module["STATIC_BUMP"] = STATIC_BUMP;
 
@@ -1855,14 +1855,12 @@ function copyTempDouble(ptr) {
 // {{PRE_LIBRARY}}
 
 
-  function ___assert_fail(condition, filename, line, func) {
-      abort('Assertion failed: ' + Pointer_stringify(condition) + ', at: ' + [filename ? Pointer_stringify(filename) : 'unknown filename', line, func ? Pointer_stringify(func) : 'unknown function']);
+  function ___cxa_uncaught_exception() {
+      return !!__ZSt18uncaught_exceptionv.uncaught_exception;
     }
 
-  function ___cxa_allocate_exception(size) {
-      return _malloc(size);
-    }
-
+  
+  
   
   var EXCEPTIONS={last:0,caught:[],infos:{},deAdjust:function (adjusted) {
         if (!adjusted || EXCEPTIONS.infos[adjusted]) return adjusted;
@@ -1897,25 +1895,7 @@ function copyTempDouble(ptr) {
         if (!ptr) return;
         var info = EXCEPTIONS.infos[ptr];
         info.refcount = 0;
-      }};function ___cxa_begin_catch(ptr) {
-      var info = EXCEPTIONS.infos[ptr];
-      if (info && !info.caught) {
-        info.caught = true;
-        __ZSt18uncaught_exceptionv.uncaught_exception--;
-      }
-      if (info) info.rethrown = false;
-      EXCEPTIONS.caught.push(ptr);
-      EXCEPTIONS.addRef(EXCEPTIONS.deAdjust(ptr));
-      return ptr;
-    }
-
-  function ___cxa_pure_virtual() {
-      ABORT = true;
-      throw 'Pure virtual function called!';
-    }
-
-  
-  
+      }};
   function ___resumeException(ptr) {
       if (!EXCEPTIONS.last) { EXCEPTIONS.last = ptr; }
       throw ptr + " - Exception catching is disabled, this exception cannot be caught. Compile with -s DISABLE_EXCEPTION_CATCHING=0 or DISABLE_EXCEPTION_CATCHING=2 to catch.";
@@ -1954,30 +1934,7 @@ function copyTempDouble(ptr) {
       // typeinfo defined. Best-efforts match just in case.
       thrown = HEAP32[((thrown)>>2)]; // undo indirection
       return ((setTempRet0(throwntype),thrown)|0);
-    }function ___cxa_throw(ptr, type, destructor) {
-      EXCEPTIONS.infos[ptr] = {
-        ptr: ptr,
-        adjusted: ptr,
-        type: type,
-        destructor: destructor,
-        refcount: 0,
-        caught: false,
-        rethrown: false
-      };
-      EXCEPTIONS.last = ptr;
-      if (!("uncaught_exception" in __ZSt18uncaught_exceptionv)) {
-        __ZSt18uncaught_exceptionv.uncaught_exception = 1;
-      } else {
-        __ZSt18uncaught_exceptionv.uncaught_exception++;
-      }
-      throw ptr + " - Exception catching is disabled, this exception cannot be caught. Compile with -s DISABLE_EXCEPTION_CATCHING=0 or DISABLE_EXCEPTION_CATCHING=2 to catch.";
-    }
-
-  function ___cxa_uncaught_exception() {
-      return !!__ZSt18uncaught_exceptionv.uncaught_exception;
-    }
-
-  function ___gxx_personality_v0() {
+    }function ___gxx_personality_v0() {
     }
 
   function ___lock() {}
@@ -5410,1004 +5367,6 @@ function copyTempDouble(ptr) {
 
   
   
-  
-  function ClassHandle_isAliasOf(other) {
-      if (!(this instanceof ClassHandle)) {
-          return false;
-      }
-      if (!(other instanceof ClassHandle)) {
-          return false;
-      }
-  
-      var leftClass = this.$$.ptrType.registeredClass;
-      var left = this.$$.ptr;
-      var rightClass = other.$$.ptrType.registeredClass;
-      var right = other.$$.ptr;
-  
-      while (leftClass.baseClass) {
-          left = leftClass.upcast(left);
-          leftClass = leftClass.baseClass;
-      }
-  
-      while (rightClass.baseClass) {
-          right = rightClass.upcast(right);
-          rightClass = rightClass.baseClass;
-      }
-  
-      return leftClass === rightClass && left === right;
-    }
-  
-  
-  function shallowCopyInternalPointer(o) {
-      return {
-          count: o.count,
-          deleteScheduled: o.deleteScheduled,
-          preservePointerOnDelete: o.preservePointerOnDelete,
-          ptr: o.ptr,
-          ptrType: o.ptrType,
-          smartPtr: o.smartPtr,
-          smartPtrType: o.smartPtrType,
-      };
-    }
-  
-  function throwInstanceAlreadyDeleted(obj) {
-      function getInstanceTypeName(handle) {
-        return handle.$$.ptrType.registeredClass.name;
-      }
-      throwBindingError(getInstanceTypeName(obj) + ' instance already deleted');
-    }function ClassHandle_clone() {
-      if (!this.$$.ptr) {
-          throwInstanceAlreadyDeleted(this);
-      }
-  
-      if (this.$$.preservePointerOnDelete) {
-          this.$$.count.value += 1;
-          return this;
-      } else {
-          var clone = Object.create(Object.getPrototypeOf(this), {
-              $$: {
-                  value: shallowCopyInternalPointer(this.$$),
-              }
-          });
-  
-          clone.$$.count.value += 1;
-          clone.$$.deleteScheduled = false;
-          return clone;
-      }
-    }
-  
-  
-  function runDestructor(handle) {
-      var $$ = handle.$$;
-      if ($$.smartPtr) {
-          $$.smartPtrType.rawDestructor($$.smartPtr);
-      } else {
-          $$.ptrType.registeredClass.rawDestructor($$.ptr);
-      }
-    }function ClassHandle_delete() {
-      if (!this.$$.ptr) {
-          throwInstanceAlreadyDeleted(this);
-      }
-  
-      if (this.$$.deleteScheduled && !this.$$.preservePointerOnDelete) {
-          throwBindingError('Object already scheduled for deletion');
-      }
-  
-      this.$$.count.value -= 1;
-      var toDelete = 0 === this.$$.count.value;
-      if (toDelete) {
-          runDestructor(this);
-      }
-      if (!this.$$.preservePointerOnDelete) {
-          this.$$.smartPtr = undefined;
-          this.$$.ptr = undefined;
-      }
-    }
-  
-  function ClassHandle_isDeleted() {
-      return !this.$$.ptr;
-    }
-  
-  
-  var delayFunction=undefined;
-  
-  var deletionQueue=[];
-  
-  function flushPendingDeletes() {
-      while (deletionQueue.length) {
-          var obj = deletionQueue.pop();
-          obj.$$.deleteScheduled = false;
-          obj['delete']();
-      }
-    }function ClassHandle_deleteLater() {
-      if (!this.$$.ptr) {
-          throwInstanceAlreadyDeleted(this);
-      }
-      if (this.$$.deleteScheduled && !this.$$.preservePointerOnDelete) {
-          throwBindingError('Object already scheduled for deletion');
-      }
-      deletionQueue.push(this);
-      if (deletionQueue.length === 1 && delayFunction) {
-          delayFunction(flushPendingDeletes);
-      }
-      this.$$.deleteScheduled = true;
-      return this;
-    }function init_ClassHandle() {
-      ClassHandle.prototype['isAliasOf'] = ClassHandle_isAliasOf;
-      ClassHandle.prototype['clone'] = ClassHandle_clone;
-      ClassHandle.prototype['delete'] = ClassHandle_delete;
-      ClassHandle.prototype['isDeleted'] = ClassHandle_isDeleted;
-      ClassHandle.prototype['deleteLater'] = ClassHandle_deleteLater;
-    }function ClassHandle() {
-    }
-  
-  var registeredPointers={};
-  
-  
-  function ensureOverloadTable(proto, methodName, humanName) {
-      if (undefined === proto[methodName].overloadTable) {
-          var prevFunc = proto[methodName];
-          // Inject an overload resolver function that routes to the appropriate overload based on the number of arguments.
-          proto[methodName] = function() {
-              // TODO This check can be removed in -O3 level "unsafe" optimizations.
-              if (!proto[methodName].overloadTable.hasOwnProperty(arguments.length)) {
-                  throwBindingError("Function '" + humanName + "' called with an invalid number of arguments (" + arguments.length + ") - expects one of (" + proto[methodName].overloadTable + ")!");
-              }
-              return proto[methodName].overloadTable[arguments.length].apply(this, arguments);
-          };
-          // Move the previous function into the overload table.
-          proto[methodName].overloadTable = [];
-          proto[methodName].overloadTable[prevFunc.argCount] = prevFunc;
-      }
-    }function exposePublicSymbol(name, value, numArguments) {
-      if (Module.hasOwnProperty(name)) {
-          if (undefined === numArguments || (undefined !== Module[name].overloadTable && undefined !== Module[name].overloadTable[numArguments])) {
-              throwBindingError("Cannot register public name '" + name + "' twice");
-          }
-  
-          // We are exposing a function with the same name as an existing function. Create an overload table and a function selector
-          // that routes between the two.
-          ensureOverloadTable(Module, name, name);
-          if (Module.hasOwnProperty(numArguments)) {
-              throwBindingError("Cannot register multiple overloads of a function with the same number of arguments (" + numArguments + ")!");
-          }
-          // Add the new function into the overload table.
-          Module[name].overloadTable[numArguments] = value;
-      }
-      else {
-          Module[name] = value;
-          if (undefined !== numArguments) {
-              Module[name].numArguments = numArguments;
-          }
-      }
-    }
-  
-  function RegisteredClass(
-      name,
-      constructor,
-      instancePrototype,
-      rawDestructor,
-      baseClass,
-      getActualType,
-      upcast,
-      downcast
-    ) {
-      this.name = name;
-      this.constructor = constructor;
-      this.instancePrototype = instancePrototype;
-      this.rawDestructor = rawDestructor;
-      this.baseClass = baseClass;
-      this.getActualType = getActualType;
-      this.upcast = upcast;
-      this.downcast = downcast;
-      this.pureVirtualFunctions = [];
-    }
-  
-  
-  
-  function upcastPointer(ptr, ptrClass, desiredClass) {
-      while (ptrClass !== desiredClass) {
-          if (!ptrClass.upcast) {
-              throwBindingError("Expected null or instance of " + desiredClass.name + ", got an instance of " + ptrClass.name);
-          }
-          ptr = ptrClass.upcast(ptr);
-          ptrClass = ptrClass.baseClass;
-      }
-      return ptr;
-    }function constNoSmartPtrRawPointerToWireType(destructors, handle) {
-      if (handle === null) {
-          if (this.isReference) {
-              throwBindingError('null is not a valid ' + this.name);
-          }
-          return 0;
-      }
-  
-      if (!handle.$$) {
-          throwBindingError('Cannot pass "' + _embind_repr(handle) + '" as a ' + this.name);
-      }
-      if (!handle.$$.ptr) {
-          throwBindingError('Cannot pass deleted object as a pointer of type ' + this.name);
-      }
-      var handleClass = handle.$$.ptrType.registeredClass;
-      var ptr = upcastPointer(handle.$$.ptr, handleClass, this.registeredClass);
-      return ptr;
-    }
-  
-  function genericPointerToWireType(destructors, handle) {
-      var ptr;
-      if (handle === null) {
-          if (this.isReference) {
-              throwBindingError('null is not a valid ' + this.name);
-          }
-  
-          if (this.isSmartPointer) {
-              ptr = this.rawConstructor();
-              if (destructors !== null) {
-                  destructors.push(this.rawDestructor, ptr);
-              }
-              return ptr;
-          } else {
-              return 0;
-          }
-      }
-  
-      if (!handle.$$) {
-          throwBindingError('Cannot pass "' + _embind_repr(handle) + '" as a ' + this.name);
-      }
-      if (!handle.$$.ptr) {
-          throwBindingError('Cannot pass deleted object as a pointer of type ' + this.name);
-      }
-      if (!this.isConst && handle.$$.ptrType.isConst) {
-          throwBindingError('Cannot convert argument of type ' + (handle.$$.smartPtrType ? handle.$$.smartPtrType.name : handle.$$.ptrType.name) + ' to parameter type ' + this.name);
-      }
-      var handleClass = handle.$$.ptrType.registeredClass;
-      ptr = upcastPointer(handle.$$.ptr, handleClass, this.registeredClass);
-  
-      if (this.isSmartPointer) {
-          // TODO: this is not strictly true
-          // We could support BY_EMVAL conversions from raw pointers to smart pointers
-          // because the smart pointer can hold a reference to the handle
-          if (undefined === handle.$$.smartPtr) {
-              throwBindingError('Passing raw pointer to smart pointer is illegal');
-          }
-  
-          switch (this.sharingPolicy) {
-              case 0: // NONE
-                  // no upcasting
-                  if (handle.$$.smartPtrType === this) {
-                      ptr = handle.$$.smartPtr;
-                  } else {
-                      throwBindingError('Cannot convert argument of type ' + (handle.$$.smartPtrType ? handle.$$.smartPtrType.name : handle.$$.ptrType.name) + ' to parameter type ' + this.name);
-                  }
-                  break;
-  
-              case 1: // INTRUSIVE
-                  ptr = handle.$$.smartPtr;
-                  break;
-  
-              case 2: // BY_EMVAL
-                  if (handle.$$.smartPtrType === this) {
-                      ptr = handle.$$.smartPtr;
-                  } else {
-                      var clonedHandle = handle['clone']();
-                      ptr = this.rawShare(
-                          ptr,
-                          __emval_register(function() {
-                              clonedHandle['delete']();
-                          })
-                      );
-                      if (destructors !== null) {
-                          destructors.push(this.rawDestructor, ptr);
-                      }
-                  }
-                  break;
-  
-              default:
-                  throwBindingError('Unsupporting sharing policy');
-          }
-      }
-      return ptr;
-    }
-  
-  function nonConstNoSmartPtrRawPointerToWireType(destructors, handle) {
-      if (handle === null) {
-          if (this.isReference) {
-              throwBindingError('null is not a valid ' + this.name);
-          }
-          return 0;
-      }
-  
-      if (!handle.$$) {
-          throwBindingError('Cannot pass "' + _embind_repr(handle) + '" as a ' + this.name);
-      }
-      if (!handle.$$.ptr) {
-          throwBindingError('Cannot pass deleted object as a pointer of type ' + this.name);
-      }
-      if (handle.$$.ptrType.isConst) {
-          throwBindingError('Cannot convert argument of type ' + handle.$$.ptrType.name + ' to parameter type ' + this.name);
-      }
-      var handleClass = handle.$$.ptrType.registeredClass;
-      var ptr = upcastPointer(handle.$$.ptr, handleClass, this.registeredClass);
-      return ptr;
-    }
-  
-  
-  function simpleReadValueFromPointer(pointer) {
-      return this['fromWireType'](HEAPU32[pointer >> 2]);
-    }
-  
-  function RegisteredPointer_getPointee(ptr) {
-      if (this.rawGetPointee) {
-          ptr = this.rawGetPointee(ptr);
-      }
-      return ptr;
-    }
-  
-  function RegisteredPointer_destructor(ptr) {
-      if (this.rawDestructor) {
-          this.rawDestructor(ptr);
-      }
-    }
-  
-  function RegisteredPointer_deleteObject(handle) {
-      if (handle !== null) {
-          handle['delete']();
-      }
-    }
-  
-  
-  function downcastPointer(ptr, ptrClass, desiredClass) {
-      if (ptrClass === desiredClass) {
-          return ptr;
-      }
-      if (undefined === desiredClass.baseClass) {
-          return null; // no conversion
-      }
-  
-      var rv = downcastPointer(ptr, ptrClass, desiredClass.baseClass);
-      if (rv === null) {
-          return null;
-      }
-      return desiredClass.downcast(rv);
-    }
-  
-  
-  
-  
-  function getInheritedInstanceCount() {
-      return Object.keys(registeredInstances).length;
-    }
-  
-  function getLiveInheritedInstances() {
-      var rv = [];
-      for (var k in registeredInstances) {
-          if (registeredInstances.hasOwnProperty(k)) {
-              rv.push(registeredInstances[k]);
-          }
-      }
-      return rv;
-    }
-  
-  function setDelayFunction(fn) {
-      delayFunction = fn;
-      if (deletionQueue.length && delayFunction) {
-          delayFunction(flushPendingDeletes);
-      }
-    }function init_embind() {
-      Module['getInheritedInstanceCount'] = getInheritedInstanceCount;
-      Module['getLiveInheritedInstances'] = getLiveInheritedInstances;
-      Module['flushPendingDeletes'] = flushPendingDeletes;
-      Module['setDelayFunction'] = setDelayFunction;
-    }var registeredInstances={};
-  
-  function getBasestPointer(class_, ptr) {
-      if (ptr === undefined) {
-          throwBindingError('ptr should not be undefined');
-      }
-      while (class_.baseClass) {
-          ptr = class_.upcast(ptr);
-          class_ = class_.baseClass;
-      }
-      return ptr;
-    }function getInheritedInstance(class_, ptr) {
-      ptr = getBasestPointer(class_, ptr);
-      return registeredInstances[ptr];
-    }
-  
-  function makeClassHandle(prototype, record) {
-      if (!record.ptrType || !record.ptr) {
-          throwInternalError('makeClassHandle requires ptr and ptrType');
-      }
-      var hasSmartPtrType = !!record.smartPtrType;
-      var hasSmartPtr = !!record.smartPtr;
-      if (hasSmartPtrType !== hasSmartPtr) {
-          throwInternalError('Both smartPtrType and smartPtr must be specified');
-      }
-      record.count = { value: 1 };
-      return Object.create(prototype, {
-          $$: {
-              value: record,
-          },
-      });
-    }function RegisteredPointer_fromWireType(ptr) {
-      // ptr is a raw pointer (or a raw smartpointer)
-  
-      // rawPointer is a maybe-null raw pointer
-      var rawPointer = this.getPointee(ptr);
-      if (!rawPointer) {
-          this.destructor(ptr);
-          return null;
-      }
-  
-      var registeredInstance = getInheritedInstance(this.registeredClass, rawPointer);
-      if (undefined !== registeredInstance) {
-          // JS object has been neutered, time to repopulate it
-          if (0 === registeredInstance.$$.count.value) {
-              registeredInstance.$$.ptr = rawPointer;
-              registeredInstance.$$.smartPtr = ptr;
-              return registeredInstance['clone']();
-          } else {
-              // else, just increment reference count on existing object
-              // it already has a reference to the smart pointer
-              var rv = registeredInstance['clone']();
-              this.destructor(ptr);
-              return rv;
-          }
-      }
-  
-      function makeDefaultHandle() {
-          if (this.isSmartPointer) {
-              return makeClassHandle(this.registeredClass.instancePrototype, {
-                  ptrType: this.pointeeType,
-                  ptr: rawPointer,
-                  smartPtrType: this,
-                  smartPtr: ptr,
-              });
-          } else {
-              return makeClassHandle(this.registeredClass.instancePrototype, {
-                  ptrType: this,
-                  ptr: ptr,
-              });
-          }
-      }
-  
-      var actualType = this.registeredClass.getActualType(rawPointer);
-      var registeredPointerRecord = registeredPointers[actualType];
-      if (!registeredPointerRecord) {
-          return makeDefaultHandle.call(this);
-      }
-  
-      var toType;
-      if (this.isConst) {
-          toType = registeredPointerRecord.constPointerType;
-      } else {
-          toType = registeredPointerRecord.pointerType;
-      }
-      var dp = downcastPointer(
-          rawPointer,
-          this.registeredClass,
-          toType.registeredClass);
-      if (dp === null) {
-          return makeDefaultHandle.call(this);
-      }
-      if (this.isSmartPointer) {
-          return makeClassHandle(toType.registeredClass.instancePrototype, {
-              ptrType: toType,
-              ptr: dp,
-              smartPtrType: this,
-              smartPtr: ptr,
-          });
-      } else {
-          return makeClassHandle(toType.registeredClass.instancePrototype, {
-              ptrType: toType,
-              ptr: dp,
-          });
-      }
-    }function init_RegisteredPointer() {
-      RegisteredPointer.prototype.getPointee = RegisteredPointer_getPointee;
-      RegisteredPointer.prototype.destructor = RegisteredPointer_destructor;
-      RegisteredPointer.prototype['argPackAdvance'] = 8;
-      RegisteredPointer.prototype['readValueFromPointer'] = simpleReadValueFromPointer;
-      RegisteredPointer.prototype['deleteObject'] = RegisteredPointer_deleteObject;
-      RegisteredPointer.prototype['fromWireType'] = RegisteredPointer_fromWireType;
-    }function RegisteredPointer(
-      name,
-      registeredClass,
-      isReference,
-      isConst,
-  
-      // smart pointer properties
-      isSmartPointer,
-      pointeeType,
-      sharingPolicy,
-      rawGetPointee,
-      rawConstructor,
-      rawShare,
-      rawDestructor
-    ) {
-      this.name = name;
-      this.registeredClass = registeredClass;
-      this.isReference = isReference;
-      this.isConst = isConst;
-  
-      // smart pointer properties
-      this.isSmartPointer = isSmartPointer;
-      this.pointeeType = pointeeType;
-      this.sharingPolicy = sharingPolicy;
-      this.rawGetPointee = rawGetPointee;
-      this.rawConstructor = rawConstructor;
-      this.rawShare = rawShare;
-      this.rawDestructor = rawDestructor;
-  
-      if (!isSmartPointer && registeredClass.baseClass === undefined) {
-          if (isConst) {
-              this['toWireType'] = constNoSmartPtrRawPointerToWireType;
-              this.destructorFunction = null;
-          } else {
-              this['toWireType'] = nonConstNoSmartPtrRawPointerToWireType;
-              this.destructorFunction = null;
-          }
-      } else {
-          this['toWireType'] = genericPointerToWireType;
-          // Here we must leave this.destructorFunction undefined, since whether genericPointerToWireType returns
-          // a pointer that needs to be freed up is runtime-dependent, and cannot be evaluated at registration time.
-          // TODO: Create an alternative mechanism that allows removing the use of var destructors = []; array in
-          //       craftInvokerFunction altogether.
-      }
-    }
-  
-  function replacePublicSymbol(name, value, numArguments) {
-      if (!Module.hasOwnProperty(name)) {
-          throwInternalError('Replacing nonexistant public symbol');
-      }
-      // If there's an overload table for this symbol, replace the symbol in the overload table instead.
-      if (undefined !== Module[name].overloadTable && undefined !== numArguments) {
-          Module[name].overloadTable[numArguments] = value;
-      }
-      else {
-          Module[name] = value;
-          Module[name].argCount = numArguments;
-      }
-    }
-  
-  function embind__requireFunction(signature, rawFunction) {
-      signature = readLatin1String(signature);
-  
-      function makeDynCaller(dynCall) {
-          var args = [];
-          for (var i = 1; i < signature.length; ++i) {
-              args.push('a' + i);
-          }
-  
-          var name = 'dynCall_' + signature + '_' + rawFunction;
-          var body = 'return function ' + name + '(' + args.join(', ') + ') {\n';
-          body    += '    return dynCall(rawFunction' + (args.length ? ', ' : '') + args.join(', ') + ');\n';
-          body    += '};\n';
-  
-          return (new Function('dynCall', 'rawFunction', body))(dynCall, rawFunction);
-      }
-  
-      var fp;
-      if (Module['FUNCTION_TABLE_' + signature] !== undefined) {
-          fp = Module['FUNCTION_TABLE_' + signature][rawFunction];
-      } else if (typeof FUNCTION_TABLE !== "undefined") {
-          fp = FUNCTION_TABLE[rawFunction];
-      } else {
-          // asm.js does not give direct access to the function tables,
-          // and thus we must go through the dynCall interface which allows
-          // calling into a signature's function table by pointer value.
-          //
-          // https://github.com/dherman/asm.js/issues/83
-          //
-          // This has three main penalties:
-          // - dynCall is another function call in the path from JavaScript to C++.
-          // - JITs may not predict through the function table indirection at runtime.
-          var dc = Module["asm"]['dynCall_' + signature];
-          if (dc === undefined) {
-              // We will always enter this branch if the signature
-              // contains 'f' and PRECISE_F32 is not enabled.
-              //
-              // Try again, replacing 'f' with 'd'.
-              dc = Module["asm"]['dynCall_' + signature.replace(/f/g, 'd')];
-              if (dc === undefined) {
-                  throwBindingError("No dynCall invoker for signature: " + signature);
-              }
-          }
-          fp = makeDynCaller(dc);
-      }
-  
-      if (typeof fp !== "function") {
-          throwBindingError("unknown function pointer with signature " + signature + ": " + rawFunction);
-      }
-      return fp;
-    }
-  
-  
-  var UnboundTypeError=undefined;
-  
-  function getTypeName(type) {
-      var ptr = ___getTypeName(type);
-      var rv = readLatin1String(ptr);
-      _free(ptr);
-      return rv;
-    }function throwUnboundTypeError(message, types) {
-      var unboundTypes = [];
-      var seen = {};
-      function visit(type) {
-          if (seen[type]) {
-              return;
-          }
-          if (registeredTypes[type]) {
-              return;
-          }
-          if (typeDependencies[type]) {
-              typeDependencies[type].forEach(visit);
-              return;
-          }
-          unboundTypes.push(type);
-          seen[type] = true;
-      }
-      types.forEach(visit);
-  
-      throw new UnboundTypeError(message + ': ' + unboundTypes.map(getTypeName).join([', ']));
-    }function __embind_register_class(
-      rawType,
-      rawPointerType,
-      rawConstPointerType,
-      baseClassRawType,
-      getActualTypeSignature,
-      getActualType,
-      upcastSignature,
-      upcast,
-      downcastSignature,
-      downcast,
-      name,
-      destructorSignature,
-      rawDestructor
-    ) {
-      name = readLatin1String(name);
-      getActualType = embind__requireFunction(getActualTypeSignature, getActualType);
-      if (upcast) {
-          upcast = embind__requireFunction(upcastSignature, upcast);
-      }
-      if (downcast) {
-          downcast = embind__requireFunction(downcastSignature, downcast);
-      }
-      rawDestructor = embind__requireFunction(destructorSignature, rawDestructor);
-      var legalFunctionName = makeLegalFunctionName(name);
-  
-      exposePublicSymbol(legalFunctionName, function() {
-          // this code cannot run if baseClassRawType is zero
-          throwUnboundTypeError('Cannot construct ' + name + ' due to unbound types', [baseClassRawType]);
-      });
-  
-      whenDependentTypesAreResolved(
-          [rawType, rawPointerType, rawConstPointerType],
-          baseClassRawType ? [baseClassRawType] : [],
-          function(base) {
-              base = base[0];
-  
-              var baseClass;
-              var basePrototype;
-              if (baseClassRawType) {
-                  baseClass = base.registeredClass;
-                  basePrototype = baseClass.instancePrototype;
-              } else {
-                  basePrototype = ClassHandle.prototype;
-              }
-  
-              var constructor = createNamedFunction(legalFunctionName, function() {
-                  if (Object.getPrototypeOf(this) !== instancePrototype) {
-                      throw new BindingError("Use 'new' to construct " + name);
-                  }
-                  if (undefined === registeredClass.constructor_body) {
-                      throw new BindingError(name + " has no accessible constructor");
-                  }
-                  var body = registeredClass.constructor_body[arguments.length];
-                  if (undefined === body) {
-                      throw new BindingError("Tried to invoke ctor of " + name + " with invalid number of parameters (" + arguments.length + ") - expected (" + Object.keys(registeredClass.constructor_body).toString() + ") parameters instead!");
-                  }
-                  return body.apply(this, arguments);
-              });
-  
-              var instancePrototype = Object.create(basePrototype, {
-                  constructor: { value: constructor },
-              });
-  
-              constructor.prototype = instancePrototype;
-  
-              var registeredClass = new RegisteredClass(
-                  name,
-                  constructor,
-                  instancePrototype,
-                  rawDestructor,
-                  baseClass,
-                  getActualType,
-                  upcast,
-                  downcast);
-  
-              var referenceConverter = new RegisteredPointer(
-                  name,
-                  registeredClass,
-                  true,
-                  false,
-                  false);
-  
-              var pointerConverter = new RegisteredPointer(
-                  name + '*',
-                  registeredClass,
-                  false,
-                  false,
-                  false);
-  
-              var constPointerConverter = new RegisteredPointer(
-                  name + ' const*',
-                  registeredClass,
-                  false,
-                  true,
-                  false);
-  
-              registeredPointers[rawType] = {
-                  pointerType: pointerConverter,
-                  constPointerType: constPointerConverter
-              };
-  
-              replacePublicSymbol(legalFunctionName, constructor);
-  
-              return [referenceConverter, pointerConverter, constPointerConverter];
-          }
-      );
-    }
-
-  
-  function heap32VectorToArray(count, firstElement) {
-      var array = [];
-      for (var i = 0; i < count; i++) {
-          array.push(HEAP32[(firstElement >> 2) + i]);
-      }
-      return array;
-    }
-  
-  function runDestructors(destructors) {
-      while (destructors.length) {
-          var ptr = destructors.pop();
-          var del = destructors.pop();
-          del(ptr);
-      }
-    }function __embind_register_class_constructor(
-      rawClassType,
-      argCount,
-      rawArgTypesAddr,
-      invokerSignature,
-      invoker,
-      rawConstructor
-    ) {
-      var rawArgTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
-      invoker = embind__requireFunction(invokerSignature, invoker);
-  
-      whenDependentTypesAreResolved([], [rawClassType], function(classType) {
-          classType = classType[0];
-          var humanName = 'constructor ' + classType.name;
-  
-          if (undefined === classType.registeredClass.constructor_body) {
-              classType.registeredClass.constructor_body = [];
-          }
-          if (undefined !== classType.registeredClass.constructor_body[argCount - 1]) {
-              throw new BindingError("Cannot register multiple constructors with identical number of parameters (" + (argCount-1) + ") for class '" + classType.name + "'! Overload resolution is currently only performed using the parameter count, not actual type info!");
-          }
-          classType.registeredClass.constructor_body[argCount - 1] = function unboundTypeHandler() {
-              throwUnboundTypeError('Cannot construct ' + classType.name + ' due to unbound types', rawArgTypes);
-          };
-  
-          whenDependentTypesAreResolved([], rawArgTypes, function(argTypes) {
-              classType.registeredClass.constructor_body[argCount - 1] = function constructor_body() {
-                  if (arguments.length !== argCount - 1) {
-                      throwBindingError(humanName + ' called with ' + arguments.length + ' arguments, expected ' + (argCount-1));
-                  }
-                  var destructors = [];
-                  var args = new Array(argCount);
-                  args[0] = rawConstructor;
-                  for (var i = 1; i < argCount; ++i) {
-                      args[i] = argTypes[i]['toWireType'](destructors, arguments[i - 1]);
-                  }
-  
-                  var ptr = invoker.apply(null, args);
-                  runDestructors(destructors);
-  
-                  return argTypes[0]['fromWireType'](ptr);
-              };
-              return [];
-          });
-          return [];
-      });
-    }
-
-  
-  
-  function new_(constructor, argumentList) {
-      if (!(constructor instanceof Function)) {
-          throw new TypeError('new_ called with constructor type ' + typeof(constructor) + " which is not a function");
-      }
-  
-      /*
-       * Previously, the following line was just:
-  
-       function dummy() {};
-  
-       * Unfortunately, Chrome was preserving 'dummy' as the object's name, even though at creation, the 'dummy' has the
-       * correct constructor name.  Thus, objects created with IMVU.new would show up in the debugger as 'dummy', which
-       * isn't very helpful.  Using IMVU.createNamedFunction addresses the issue.  Doublely-unfortunately, there's no way
-       * to write a test for this behavior.  -NRD 2013.02.22
-       */
-      var dummy = createNamedFunction(constructor.name || 'unknownFunctionName', function(){});
-      dummy.prototype = constructor.prototype;
-      var obj = new dummy;
-  
-      var r = constructor.apply(obj, argumentList);
-      return (r instanceof Object) ? r : obj;
-    }function craftInvokerFunction(humanName, argTypes, classType, cppInvokerFunc, cppTargetFunc) {
-      // humanName: a human-readable string name for the function to be generated.
-      // argTypes: An array that contains the embind type objects for all types in the function signature.
-      //    argTypes[0] is the type object for the function return value.
-      //    argTypes[1] is the type object for function this object/class type, or null if not crafting an invoker for a class method.
-      //    argTypes[2...] are the actual function parameters.
-      // classType: The embind type object for the class to be bound, or null if this is not a method of a class.
-      // cppInvokerFunc: JS Function object to the C++-side function that interops into C++ code.
-      // cppTargetFunc: Function pointer (an integer to FUNCTION_TABLE) to the target C++ function the cppInvokerFunc will end up calling.
-      var argCount = argTypes.length;
-  
-      if (argCount < 2) {
-          throwBindingError("argTypes array size mismatch! Must at least get return value and 'this' types!");
-      }
-  
-      var isClassMethodFunc = (argTypes[1] !== null && classType !== null);
-  
-      // Free functions with signature "void function()" do not need an invoker that marshalls between wire types.
-  // TODO: This omits argument count check - enable only at -O3 or similar.
-  //    if (ENABLE_UNSAFE_OPTS && argCount == 2 && argTypes[0].name == "void" && !isClassMethodFunc) {
-  //       return FUNCTION_TABLE[fn];
-  //    }
-  
-  
-      // Determine if we need to use a dynamic stack to store the destructors for the function parameters.
-      // TODO: Remove this completely once all function invokers are being dynamically generated.
-      var needsDestructorStack = false;
-  
-      for(var i = 1; i < argTypes.length; ++i) { // Skip return value at index 0 - it's not deleted here.
-          if (argTypes[i] !== null && argTypes[i].destructorFunction === undefined) { // The type does not define a destructor function - must use dynamic stack
-              needsDestructorStack = true;
-              break;
-          }
-      }
-  
-      var returns = (argTypes[0].name !== "void");
-  
-      var argsList = "";
-      var argsListWired = "";
-      for(var i = 0; i < argCount - 2; ++i) {
-          argsList += (i!==0?", ":"")+"arg"+i;
-          argsListWired += (i!==0?", ":"")+"arg"+i+"Wired";
-      }
-  
-      var invokerFnBody =
-          "return function "+makeLegalFunctionName(humanName)+"("+argsList+") {\n" +
-          "if (arguments.length !== "+(argCount - 2)+") {\n" +
-              "throwBindingError('function "+humanName+" called with ' + arguments.length + ' arguments, expected "+(argCount - 2)+" args!');\n" +
-          "}\n";
-  
-  
-      if (needsDestructorStack) {
-          invokerFnBody +=
-              "var destructors = [];\n";
-      }
-  
-      var dtorStack = needsDestructorStack ? "destructors" : "null";
-      var args1 = ["throwBindingError", "invoker", "fn", "runDestructors", "retType", "classParam"];
-      var args2 = [throwBindingError, cppInvokerFunc, cppTargetFunc, runDestructors, argTypes[0], argTypes[1]];
-  
-  
-      if (isClassMethodFunc) {
-          invokerFnBody += "var thisWired = classParam.toWireType("+dtorStack+", this);\n";
-      }
-  
-      for(var i = 0; i < argCount - 2; ++i) {
-          invokerFnBody += "var arg"+i+"Wired = argType"+i+".toWireType("+dtorStack+", arg"+i+"); // "+argTypes[i+2].name+"\n";
-          args1.push("argType"+i);
-          args2.push(argTypes[i+2]);
-      }
-  
-      if (isClassMethodFunc) {
-          argsListWired = "thisWired" + (argsListWired.length > 0 ? ", " : "") + argsListWired;
-      }
-  
-      invokerFnBody +=
-          (returns?"var rv = ":"") + "invoker(fn"+(argsListWired.length>0?", ":"")+argsListWired+");\n";
-  
-      if (needsDestructorStack) {
-          invokerFnBody += "runDestructors(destructors);\n";
-      } else {
-          for(var i = isClassMethodFunc?1:2; i < argTypes.length; ++i) { // Skip return value at index 0 - it's not deleted here. Also skip class type if not a method.
-              var paramName = (i === 1 ? "thisWired" : ("arg"+(i - 2)+"Wired"));
-              if (argTypes[i].destructorFunction !== null) {
-                  invokerFnBody += paramName+"_dtor("+paramName+"); // "+argTypes[i].name+"\n";
-                  args1.push(paramName+"_dtor");
-                  args2.push(argTypes[i].destructorFunction);
-              }
-          }
-      }
-  
-      if (returns) {
-          invokerFnBody += "var ret = retType.fromWireType(rv);\n" +
-                           "return ret;\n";
-      } else {
-      }
-      invokerFnBody += "}\n";
-  
-      args1.push(invokerFnBody);
-  
-      var invokerFunction = new_(Function, args1).apply(null, args2);
-      return invokerFunction;
-    }function __embind_register_class_function(
-      rawClassType,
-      methodName,
-      argCount,
-      rawArgTypesAddr, // [ReturnType, ThisType, Args...]
-      invokerSignature,
-      rawInvoker,
-      context,
-      isPureVirtual
-    ) {
-      var rawArgTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
-      methodName = readLatin1String(methodName);
-      rawInvoker = embind__requireFunction(invokerSignature, rawInvoker);
-  
-      whenDependentTypesAreResolved([], [rawClassType], function(classType) {
-          classType = classType[0];
-          var humanName = classType.name + '.' + methodName;
-  
-          if (isPureVirtual) {
-              classType.registeredClass.pureVirtualFunctions.push(methodName);
-          }
-  
-          function unboundTypesHandler() {
-              throwUnboundTypeError('Cannot call ' + humanName + ' due to unbound types', rawArgTypes);
-          }
-  
-          var proto = classType.registeredClass.instancePrototype;
-          var method = proto[methodName];
-          if (undefined === method || (undefined === method.overloadTable && method.className !== classType.name && method.argCount === argCount - 2)) {
-              // This is the first overload to be registered, OR we are replacing a function in the base class with a function in the derived class.
-              unboundTypesHandler.argCount = argCount - 2;
-              unboundTypesHandler.className = classType.name;
-              proto[methodName] = unboundTypesHandler;
-          } else {
-              // There was an existing function with the same name registered. Set up a function overload routing table.
-              ensureOverloadTable(proto, methodName, humanName);
-              proto[methodName].overloadTable[argCount - 2] = unboundTypesHandler;
-          }
-  
-          whenDependentTypesAreResolved([], rawArgTypes, function(argTypes) {
-  
-              var memberFunction = craftInvokerFunction(humanName, argTypes, classType, rawInvoker, context);
-  
-              // Replace the initial unbound-handler-stub function with the appropriate member function, now that all types
-              // are resolved. If multiple overloads are registered for this function, the function goes into an overload table.
-              if (undefined === proto[methodName].overloadTable) {
-                  // Set argCount in case an overload is registered later
-                  memberFunction.argCount = argCount - 2;
-                  proto[methodName] = memberFunction;
-              } else {
-                  proto[methodName].overloadTable[argCount - 2] = memberFunction;
-              }
-  
-              return [];
-          });
-          return [];
-      });
-    }
-
-  
-  
   var emval_free_list=[];
   
   var emval_handle_array=[{},{value:undefined},{value:null},{value:true},{value:false}];function __emval_decref(handle) {
@@ -6455,6 +5414,10 @@ function copyTempDouble(ptr) {
           return handle;
           }
         }
+    }
+  
+  function simpleReadValueFromPointer(pointer) {
+      return this['fromWireType'](HEAPU32[pointer >> 2]);
     }function __embind_register_emval(rawType, name) {
       name = readLatin1String(name);
       registerType(rawType, {
@@ -6519,23 +5482,6 @@ function copyTempDouble(ptr) {
           'argPackAdvance': 8,
           'readValueFromPointer': floatReadValueFromPointer(name, shift),
           destructorFunction: null, // This type does not need a destructor
-      });
-    }
-
-  function __embind_register_function(name, argCount, rawArgTypesAddr, signature, rawInvoker, fn) {
-      var argTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
-      name = readLatin1String(name);
-  
-      rawInvoker = embind__requireFunction(signature, rawInvoker);
-  
-      exposePublicSymbol(name, function() {
-          throwUnboundTypeError('Cannot call ' + name + ' due to unbound types', argTypes);
-      }, argCount - 1);
-  
-      whenDependentTypesAreResolved([], argTypes, function(argTypes) {
-          var invokerArgsArray = [argTypes[0] /* return value */, null /* no class 'this'*/].concat(argTypes.slice(1) /* actual params */);
-          replacePublicSymbol(name, craftInvokerFunction(name, invokerArgsArray, null /* no class 'this'*/, rawInvoker, fn), argCount - 1);
-          return [];
       });
     }
 
@@ -6750,222 +5696,844 @@ function copyTempDouble(ptr) {
       });
     }
 
-  
-  function requireHandle(handle) {
-      if (!handle) {
-          throwBindingError('Cannot use deleted val. handle = ' + handle);
-      }
-      return emval_handle_array[handle].value;
-    }
-  
-  function requireRegisteredType(rawType, humanName) {
-      var impl = registeredTypes[rawType];
-      if (undefined === impl) {
-          throwBindingError(humanName + " has unknown type " + getTypeName(rawType));
-      }
-      return impl;
-    }function __emval_as(handle, returnType, destructorsRef) {
-      handle = requireHandle(handle);
-      returnType = requireRegisteredType(returnType, 'emval::as');
-      var destructors = [];
-      var rd = __emval_register(destructors);
-      HEAP32[destructorsRef >> 2] = rd;
-      return returnType['toWireType'](destructors, handle);
-    }
-
-  
-  function __emval_allocateDestructors(destructorsRef) {
-      var destructors = [];
-      HEAP32[destructorsRef >> 2] = __emval_register(destructors);
-      return destructors;
-    }
-  
-  
-  var emval_symbols={};function getStringOrSymbol(address) {
-      var symbol = emval_symbols[address];
-      if (symbol === undefined) {
-          return readLatin1String(address);
-      } else {
-          return symbol;
-      }
-    }
-  
-  var emval_methodCallers=[];function __emval_call_method(caller, handle, methodName, destructorsRef, args) {
-      caller = emval_methodCallers[caller];
-      handle = requireHandle(handle);
-      methodName = getStringOrSymbol(methodName);
-      return caller(handle, methodName, __emval_allocateDestructors(destructorsRef), args);
-    }
-
-  function __emval_call_void_method(caller, handle, methodName, args) {
-      caller = emval_methodCallers[caller];
-      handle = requireHandle(handle);
-      methodName = getStringOrSymbol(methodName);
-      caller(handle, methodName, null, args);
-    }
-
-
-  
-  function emval_get_global() { return (function(){return Function;})()('return this')(); }function __emval_get_global(name) {
-      if(name===0){
-        return __emval_register(emval_get_global());
-      } else {
-        name = getStringOrSymbol(name);
-        return __emval_register(emval_get_global()[name]);
-      }
-    }
-
-  
-  function __emval_addMethodCaller(caller) {
-      var id = emval_methodCallers.length;
-      emval_methodCallers.push(caller);
-      return id;
-    }
-  
-  function __emval_lookupTypes(argCount, argTypes, argWireTypes) {
-      var a = new Array(argCount);
-      for (var i = 0; i < argCount; ++i) {
-          a[i] = requireRegisteredType(
-              HEAP32[(argTypes >> 2) + i],
-              "parameter " + i);
-      }
-      return a;
-    }function __emval_get_method_caller(argCount, argTypes) {
-      var types = __emval_lookupTypes(argCount, argTypes);
-  
-      var retType = types[0];
-      var signatureName = retType.name + "_$" + types.slice(1).map(function (t) { return t.name; }).join("_") + "$";
-  
-      var params = ["retType"];
-      var args = [retType];
-  
-      var argsList = ""; // 'arg0, arg1, arg2, ... , argN'
-      for (var i = 0; i < argCount - 1; ++i) {
-          argsList += (i !== 0 ? ", " : "") + "arg" + i;
-          params.push("argType" + i);
-          args.push(types[1 + i]);
-      }
-  
-      var functionName = makeLegalFunctionName("methodCaller_" + signatureName);
-      var functionBody =
-          "return function " + functionName + "(handle, name, destructors, args) {\n";
-  
-      var offset = 0;
-      for (var i = 0; i < argCount - 1; ++i) {
-          functionBody +=
-          "    var arg" + i + " = argType" + i + ".readValueFromPointer(args" + (offset ? ("+"+offset) : "") + ");\n";
-          offset += types[i + 1]['argPackAdvance'];
-      }
-      functionBody +=
-          "    var rv = handle[name](" + argsList + ");\n";
-      for (var i = 0; i < argCount - 1; ++i) {
-          if (types[i + 1]['deleteObject']) {
-              functionBody +=
-              "    argType" + i + ".deleteObject(arg" + i + ");\n";
-          }
-      }
-      if (!retType.isVoid) {
-          functionBody +=
-          "    return retType.toWireType(destructors, rv);\n";
-      }
-      functionBody +=
-          "};\n";
-  
-      params.push(functionBody);
-      var invokerFunction = new_(Function, params).apply(null, args);
-      return __emval_addMethodCaller(invokerFunction);
-    }
-
-  function __emval_get_module_property(name) {
-      name = getStringOrSymbol(name);
-      return __emval_register(Module[name]);
-    }
-
-  function __emval_get_property(handle, key) {
-      handle = requireHandle(handle);
-      key = requireHandle(key);
-      return __emval_register(handle[key]);
-    }
-
-  function __emval_incref(handle) {
-      if (handle > 4) {
-          emval_handle_array[handle].refcount += 1;
-      }
-    }
-
-  
-  function craftEmvalAllocator(argCount) {
-      /*This function returns a new function that looks like this:
-      function emval_allocator_3(constructor, argTypes, args) {
-          var argType0 = requireRegisteredType(HEAP32[(argTypes >> 2)], "parameter 0");
-          var arg0 = argType0.readValueFromPointer(args);
-          var argType1 = requireRegisteredType(HEAP32[(argTypes >> 2) + 1], "parameter 1");
-          var arg1 = argType1.readValueFromPointer(args + 8);
-          var argType2 = requireRegisteredType(HEAP32[(argTypes >> 2) + 2], "parameter 2");
-          var arg2 = argType2.readValueFromPointer(args + 16);
-          var obj = new constructor(arg0, arg1, arg2);
-          return __emval_register(obj);
-      } */
-      var argsList = "";
-      for(var i = 0; i < argCount; ++i) {
-          argsList += (i!==0?", ":"")+"arg"+i; // 'arg0, arg1, ..., argn'
-      }
-  
-      var functionBody =
-          "return function emval_allocator_"+argCount+"(constructor, argTypes, args) {\n";
-  
-      for(var i = 0; i < argCount; ++i) {
-          functionBody +=
-              "var argType"+i+" = requireRegisteredType(HEAP32[(argTypes >> 2) + "+i+"], \"parameter "+i+"\");\n" +
-              "var arg"+i+" = argType"+i+".readValueFromPointer(args);\n" +
-              "args += argType"+i+"['argPackAdvance'];\n";
-      }
-      functionBody +=
-          "var obj = new constructor("+argsList+");\n" +
-          "return __emval_register(obj);\n" +
-          "}\n";
-  
-      /*jshint evil:true*/
-      return (new Function("requireRegisteredType", "HEAP32", "__emval_register", functionBody))(
-          requireRegisteredType, HEAP32, __emval_register);
-    }
-  
-  var emval_newers={};function __emval_new(handle, argCount, argTypes, args) {
-      handle = requireHandle(handle);
-  
-      var newer = emval_newers[argCount];
-      if (!newer) {
-          newer = craftEmvalAllocator(argCount);
-          emval_newers[argCount] = newer;
-      }
-  
-      return newer(handle, argTypes, args);
-    }
-
-  function __emval_new_cstring(v) {
-      return __emval_register(getStringOrSymbol(v));
-    }
-
-  function __emval_new_object() {
-      return __emval_register({});
-    }
-
-  function __emval_run_destructors(handle) {
-      var destructors = emval_handle_array[handle].value;
-      runDestructors(destructors);
-      __emval_decref(handle);
-    }
-
-  function __emval_set_property(handle, key, value) {
-      handle = requireHandle(handle);
-      key = requireHandle(key);
-      value = requireHandle(value);
-      handle[key] = value;
-    }
-
   function _abort() {
       Module['abort']();
     }
+
+  
+  
+  
+  function _emscripten_set_main_loop_timing(mode, value) {
+      Browser.mainLoop.timingMode = mode;
+      Browser.mainLoop.timingValue = value;
+  
+      if (!Browser.mainLoop.func) {
+        console.error('emscripten_set_main_loop_timing: Cannot set timing mode for main loop since a main loop does not exist! Call emscripten_set_main_loop first to set one up.');
+        return 1; // Return non-zero on failure, can't set timing mode when there is no main loop.
+      }
+  
+      if (mode == 0 /*EM_TIMING_SETTIMEOUT*/) {
+        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_setTimeout() {
+          var timeUntilNextTick = Math.max(0, Browser.mainLoop.tickStartTime + value - _emscripten_get_now())|0;
+          setTimeout(Browser.mainLoop.runner, timeUntilNextTick); // doing this each time means that on exception, we stop
+        };
+        Browser.mainLoop.method = 'timeout';
+      } else if (mode == 1 /*EM_TIMING_RAF*/) {
+        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_rAF() {
+          Browser.requestAnimationFrame(Browser.mainLoop.runner);
+        };
+        Browser.mainLoop.method = 'rAF';
+      } else if (mode == 2 /*EM_TIMING_SETIMMEDIATE*/) {
+        if (typeof setImmediate === 'undefined') {
+          // Emulate setImmediate. (note: not a complete polyfill, we don't emulate clearImmediate() to keep code size to minimum, since not needed)
+          var setImmediates = [];
+          var emscriptenMainLoopMessageId = 'setimmediate';
+          function Browser_setImmediate_messageHandler(event) {
+            // When called in current thread or Worker, the main loop ID is structured slightly different to accommodate for --proxy-to-worker runtime listening to Worker events,
+            // so check for both cases.
+            if (event.data === emscriptenMainLoopMessageId || event.data.target === emscriptenMainLoopMessageId) {
+              event.stopPropagation();
+              setImmediates.shift()();
+            }
+          }
+          addEventListener("message", Browser_setImmediate_messageHandler, true);
+          setImmediate = function Browser_emulated_setImmediate(func) {
+            setImmediates.push(func);
+            if (ENVIRONMENT_IS_WORKER) {
+              if (Module['setImmediates'] === undefined) Module['setImmediates'] = [];
+              Module['setImmediates'].push(func);
+              postMessage({target: emscriptenMainLoopMessageId}); // In --proxy-to-worker, route the message via proxyClient.js
+            } else postMessage(emscriptenMainLoopMessageId, "*"); // On the main thread, can just send the message to itself.
+          }
+        }
+        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_setImmediate() {
+          setImmediate(Browser.mainLoop.runner);
+        };
+        Browser.mainLoop.method = 'immediate';
+      }
+      return 0;
+    }
+  
+  function _emscripten_get_now() { abort() }function _emscripten_set_main_loop(func, fps, simulateInfiniteLoop, arg, noSetTiming) {
+      Module['noExitRuntime'] = true;
+  
+      assert(!Browser.mainLoop.func, 'emscripten_set_main_loop: there can only be one main loop function at once: call emscripten_cancel_main_loop to cancel the previous one before setting a new one with different parameters.');
+  
+      Browser.mainLoop.func = func;
+      Browser.mainLoop.arg = arg;
+  
+      var browserIterationFunc;
+      if (typeof arg !== 'undefined') {
+        browserIterationFunc = function() {
+          Module['dynCall_vi'](func, arg);
+        };
+      } else {
+        browserIterationFunc = function() {
+          Module['dynCall_v'](func);
+        };
+      }
+  
+      var thisMainLoopId = Browser.mainLoop.currentlyRunningMainloop;
+  
+      Browser.mainLoop.runner = function Browser_mainLoop_runner() {
+        if (ABORT) return;
+        if (Browser.mainLoop.queue.length > 0) {
+          var start = Date.now();
+          var blocker = Browser.mainLoop.queue.shift();
+          blocker.func(blocker.arg);
+          if (Browser.mainLoop.remainingBlockers) {
+            var remaining = Browser.mainLoop.remainingBlockers;
+            var next = remaining%1 == 0 ? remaining-1 : Math.floor(remaining);
+            if (blocker.counted) {
+              Browser.mainLoop.remainingBlockers = next;
+            } else {
+              // not counted, but move the progress along a tiny bit
+              next = next + 0.5; // do not steal all the next one's progress
+              Browser.mainLoop.remainingBlockers = (8*remaining + next)/9;
+            }
+          }
+          console.log('main loop blocker "' + blocker.name + '" took ' + (Date.now() - start) + ' ms'); //, left: ' + Browser.mainLoop.remainingBlockers);
+          Browser.mainLoop.updateStatus();
+  
+          // catches pause/resume main loop from blocker execution
+          if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
+  
+          setTimeout(Browser.mainLoop.runner, 0);
+          return;
+        }
+  
+        // catch pauses from non-main loop sources
+        if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
+  
+        // Implement very basic swap interval control
+        Browser.mainLoop.currentFrameNumber = Browser.mainLoop.currentFrameNumber + 1 | 0;
+        if (Browser.mainLoop.timingMode == 1/*EM_TIMING_RAF*/ && Browser.mainLoop.timingValue > 1 && Browser.mainLoop.currentFrameNumber % Browser.mainLoop.timingValue != 0) {
+          // Not the scheduled time to render this frame - skip.
+          Browser.mainLoop.scheduler();
+          return;
+        } else if (Browser.mainLoop.timingMode == 0/*EM_TIMING_SETTIMEOUT*/) {
+          Browser.mainLoop.tickStartTime = _emscripten_get_now();
+        }
+  
+        // Signal GL rendering layer that processing of a new frame is about to start. This helps it optimize
+        // VBO double-buffering and reduce GPU stalls.
+  
+  
+        if (Browser.mainLoop.method === 'timeout' && Module.ctx) {
+          err('Looks like you are rendering without using requestAnimationFrame for the main loop. You should use 0 for the frame rate in emscripten_set_main_loop in order to use requestAnimationFrame, as that can greatly improve your frame rates!');
+          Browser.mainLoop.method = ''; // just warn once per call to set main loop
+        }
+  
+        Browser.mainLoop.runIter(browserIterationFunc);
+  
+        checkStackCookie();
+  
+        // catch pauses from the main loop itself
+        if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
+  
+        // Queue new audio data. This is important to be right after the main loop invocation, so that we will immediately be able
+        // to queue the newest produced audio samples.
+        // TODO: Consider adding pre- and post- rAF callbacks so that GL.newRenderingFrameStarted() and SDL.audio.queueNewAudioData()
+        //       do not need to be hardcoded into this function, but can be more generic.
+        if (typeof SDL === 'object' && SDL.audio && SDL.audio.queueNewAudioData) SDL.audio.queueNewAudioData();
+  
+        Browser.mainLoop.scheduler();
+      }
+  
+      if (!noSetTiming) {
+        if (fps && fps > 0) _emscripten_set_main_loop_timing(0/*EM_TIMING_SETTIMEOUT*/, 1000.0 / fps);
+        else _emscripten_set_main_loop_timing(1/*EM_TIMING_RAF*/, 1); // Do rAF by rendering each frame (no decimating)
+  
+        Browser.mainLoop.scheduler();
+      }
+  
+      if (simulateInfiniteLoop) {
+        throw 'SimulateInfiniteLoop';
+      }
+    }var Browser={mainLoop:{scheduler:null,method:"",currentlyRunningMainloop:0,func:null,arg:0,timingMode:0,timingValue:0,currentFrameNumber:0,queue:[],pause:function () {
+          Browser.mainLoop.scheduler = null;
+          Browser.mainLoop.currentlyRunningMainloop++; // Incrementing this signals the previous main loop that it's now become old, and it must return.
+        },resume:function () {
+          Browser.mainLoop.currentlyRunningMainloop++;
+          var timingMode = Browser.mainLoop.timingMode;
+          var timingValue = Browser.mainLoop.timingValue;
+          var func = Browser.mainLoop.func;
+          Browser.mainLoop.func = null;
+          _emscripten_set_main_loop(func, 0, false, Browser.mainLoop.arg, true /* do not set timing and call scheduler, we will do it on the next lines */);
+          _emscripten_set_main_loop_timing(timingMode, timingValue);
+          Browser.mainLoop.scheduler();
+        },updateStatus:function () {
+          if (Module['setStatus']) {
+            var message = Module['statusMessage'] || 'Please wait...';
+            var remaining = Browser.mainLoop.remainingBlockers;
+            var expected = Browser.mainLoop.expectedBlockers;
+            if (remaining) {
+              if (remaining < expected) {
+                Module['setStatus'](message + ' (' + (expected - remaining) + '/' + expected + ')');
+              } else {
+                Module['setStatus'](message);
+              }
+            } else {
+              Module['setStatus']('');
+            }
+          }
+        },runIter:function (func) {
+          if (ABORT) return;
+          if (Module['preMainLoop']) {
+            var preRet = Module['preMainLoop']();
+            if (preRet === false) {
+              return; // |return false| skips a frame
+            }
+          }
+          try {
+            func();
+          } catch (e) {
+            if (e instanceof ExitStatus) {
+              return;
+            } else {
+              if (e && typeof e === 'object' && e.stack) err('exception thrown: ' + [e, e.stack]);
+              throw e;
+            }
+          }
+          if (Module['postMainLoop']) Module['postMainLoop']();
+        }},isFullscreen:false,pointerLock:false,moduleContextCreatedCallbacks:[],workers:[],init:function () {
+        if (!Module["preloadPlugins"]) Module["preloadPlugins"] = []; // needs to exist even in workers
+  
+        if (Browser.initted) return;
+        Browser.initted = true;
+  
+        try {
+          new Blob();
+          Browser.hasBlobConstructor = true;
+        } catch(e) {
+          Browser.hasBlobConstructor = false;
+          console.log("warning: no blob constructor, cannot create blobs with mimetypes");
+        }
+        Browser.BlobBuilder = typeof MozBlobBuilder != "undefined" ? MozBlobBuilder : (typeof WebKitBlobBuilder != "undefined" ? WebKitBlobBuilder : (!Browser.hasBlobConstructor ? console.log("warning: no BlobBuilder") : null));
+        Browser.URLObject = typeof window != "undefined" ? (window.URL ? window.URL : window.webkitURL) : undefined;
+        if (!Module.noImageDecoding && typeof Browser.URLObject === 'undefined') {
+          console.log("warning: Browser does not support creating object URLs. Built-in browser image decoding will not be available.");
+          Module.noImageDecoding = true;
+        }
+  
+        // Support for plugins that can process preloaded files. You can add more of these to
+        // your app by creating and appending to Module.preloadPlugins.
+        //
+        // Each plugin is asked if it can handle a file based on the file's name. If it can,
+        // it is given the file's raw data. When it is done, it calls a callback with the file's
+        // (possibly modified) data. For example, a plugin might decompress a file, or it
+        // might create some side data structure for use later (like an Image element, etc.).
+  
+        var imagePlugin = {};
+        imagePlugin['canHandle'] = function imagePlugin_canHandle(name) {
+          return !Module.noImageDecoding && /\.(jpg|jpeg|png|bmp)$/i.test(name);
+        };
+        imagePlugin['handle'] = function imagePlugin_handle(byteArray, name, onload, onerror) {
+          var b = null;
+          if (Browser.hasBlobConstructor) {
+            try {
+              b = new Blob([byteArray], { type: Browser.getMimetype(name) });
+              if (b.size !== byteArray.length) { // Safari bug #118630
+                // Safari's Blob can only take an ArrayBuffer
+                b = new Blob([(new Uint8Array(byteArray)).buffer], { type: Browser.getMimetype(name) });
+              }
+            } catch(e) {
+              warnOnce('Blob constructor present but fails: ' + e + '; falling back to blob builder');
+            }
+          }
+          if (!b) {
+            var bb = new Browser.BlobBuilder();
+            bb.append((new Uint8Array(byteArray)).buffer); // we need to pass a buffer, and must copy the array to get the right data range
+            b = bb.getBlob();
+          }
+          var url = Browser.URLObject.createObjectURL(b);
+          assert(typeof url == 'string', 'createObjectURL must return a url as a string');
+          var img = new Image();
+          img.onload = function img_onload() {
+            assert(img.complete, 'Image ' + name + ' could not be decoded');
+            var canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            Module["preloadedImages"][name] = canvas;
+            Browser.URLObject.revokeObjectURL(url);
+            if (onload) onload(byteArray);
+          };
+          img.onerror = function img_onerror(event) {
+            console.log('Image ' + url + ' could not be decoded');
+            if (onerror) onerror();
+          };
+          img.src = url;
+        };
+        Module['preloadPlugins'].push(imagePlugin);
+  
+        var audioPlugin = {};
+        audioPlugin['canHandle'] = function audioPlugin_canHandle(name) {
+          return !Module.noAudioDecoding && name.substr(-4) in { '.ogg': 1, '.wav': 1, '.mp3': 1 };
+        };
+        audioPlugin['handle'] = function audioPlugin_handle(byteArray, name, onload, onerror) {
+          var done = false;
+          function finish(audio) {
+            if (done) return;
+            done = true;
+            Module["preloadedAudios"][name] = audio;
+            if (onload) onload(byteArray);
+          }
+          function fail() {
+            if (done) return;
+            done = true;
+            Module["preloadedAudios"][name] = new Audio(); // empty shim
+            if (onerror) onerror();
+          }
+          if (Browser.hasBlobConstructor) {
+            try {
+              var b = new Blob([byteArray], { type: Browser.getMimetype(name) });
+            } catch(e) {
+              return fail();
+            }
+            var url = Browser.URLObject.createObjectURL(b); // XXX we never revoke this!
+            assert(typeof url == 'string', 'createObjectURL must return a url as a string');
+            var audio = new Audio();
+            audio.addEventListener('canplaythrough', function() { finish(audio) }, false); // use addEventListener due to chromium bug 124926
+            audio.onerror = function audio_onerror(event) {
+              if (done) return;
+              console.log('warning: browser could not fully decode audio ' + name + ', trying slower base64 approach');
+              function encode64(data) {
+                var BASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+                var PAD = '=';
+                var ret = '';
+                var leftchar = 0;
+                var leftbits = 0;
+                for (var i = 0; i < data.length; i++) {
+                  leftchar = (leftchar << 8) | data[i];
+                  leftbits += 8;
+                  while (leftbits >= 6) {
+                    var curr = (leftchar >> (leftbits-6)) & 0x3f;
+                    leftbits -= 6;
+                    ret += BASE[curr];
+                  }
+                }
+                if (leftbits == 2) {
+                  ret += BASE[(leftchar&3) << 4];
+                  ret += PAD + PAD;
+                } else if (leftbits == 4) {
+                  ret += BASE[(leftchar&0xf) << 2];
+                  ret += PAD;
+                }
+                return ret;
+              }
+              audio.src = 'data:audio/x-' + name.substr(-3) + ';base64,' + encode64(byteArray);
+              finish(audio); // we don't wait for confirmation this worked - but it's worth trying
+            };
+            audio.src = url;
+            // workaround for chrome bug 124926 - we do not always get oncanplaythrough or onerror
+            Browser.safeSetTimeout(function() {
+              finish(audio); // try to use it even though it is not necessarily ready to play
+            }, 10000);
+          } else {
+            return fail();
+          }
+        };
+        Module['preloadPlugins'].push(audioPlugin);
+  
+  
+        // Canvas event setup
+  
+        function pointerLockChange() {
+          Browser.pointerLock = document['pointerLockElement'] === Module['canvas'] ||
+                                document['mozPointerLockElement'] === Module['canvas'] ||
+                                document['webkitPointerLockElement'] === Module['canvas'] ||
+                                document['msPointerLockElement'] === Module['canvas'];
+        }
+        var canvas = Module['canvas'];
+        if (canvas) {
+          // forced aspect ratio can be enabled by defining 'forcedAspectRatio' on Module
+          // Module['forcedAspectRatio'] = 4 / 3;
+  
+          canvas.requestPointerLock = canvas['requestPointerLock'] ||
+                                      canvas['mozRequestPointerLock'] ||
+                                      canvas['webkitRequestPointerLock'] ||
+                                      canvas['msRequestPointerLock'] ||
+                                      function(){};
+          canvas.exitPointerLock = document['exitPointerLock'] ||
+                                   document['mozExitPointerLock'] ||
+                                   document['webkitExitPointerLock'] ||
+                                   document['msExitPointerLock'] ||
+                                   function(){}; // no-op if function does not exist
+          canvas.exitPointerLock = canvas.exitPointerLock.bind(document);
+  
+          document.addEventListener('pointerlockchange', pointerLockChange, false);
+          document.addEventListener('mozpointerlockchange', pointerLockChange, false);
+          document.addEventListener('webkitpointerlockchange', pointerLockChange, false);
+          document.addEventListener('mspointerlockchange', pointerLockChange, false);
+  
+          if (Module['elementPointerLock']) {
+            canvas.addEventListener("click", function(ev) {
+              if (!Browser.pointerLock && Module['canvas'].requestPointerLock) {
+                Module['canvas'].requestPointerLock();
+                ev.preventDefault();
+              }
+            }, false);
+          }
+        }
+      },createContext:function (canvas, useWebGL, setInModule, webGLContextAttributes) {
+        if (useWebGL && Module.ctx && canvas == Module.canvas) return Module.ctx; // no need to recreate GL context if it's already been created for this canvas.
+  
+        var ctx;
+        var contextHandle;
+        if (useWebGL) {
+          // For GLES2/desktop GL compatibility, adjust a few defaults to be different to WebGL defaults, so that they align better with the desktop defaults.
+          var contextAttributes = {
+            antialias: false,
+            alpha: false
+          };
+  
+          if (webGLContextAttributes) {
+            for (var attribute in webGLContextAttributes) {
+              contextAttributes[attribute] = webGLContextAttributes[attribute];
+            }
+          }
+  
+          contextHandle = GL.createContext(canvas, contextAttributes);
+          if (contextHandle) {
+            ctx = GL.getContext(contextHandle).GLctx;
+          }
+        } else {
+          ctx = canvas.getContext('2d');
+        }
+  
+        if (!ctx) return null;
+  
+        if (setInModule) {
+          if (!useWebGL) assert(typeof GLctx === 'undefined', 'cannot set in module if GLctx is used, but we are a non-GL context that would replace it');
+  
+          Module.ctx = ctx;
+          if (useWebGL) GL.makeContextCurrent(contextHandle);
+          Module.useWebGL = useWebGL;
+          Browser.moduleContextCreatedCallbacks.forEach(function(callback) { callback() });
+          Browser.init();
+        }
+        return ctx;
+      },destroyContext:function (canvas, useWebGL, setInModule) {},fullscreenHandlersInstalled:false,lockPointer:undefined,resizeCanvas:undefined,requestFullscreen:function (lockPointer, resizeCanvas, vrDevice) {
+        Browser.lockPointer = lockPointer;
+        Browser.resizeCanvas = resizeCanvas;
+        Browser.vrDevice = vrDevice;
+        if (typeof Browser.lockPointer === 'undefined') Browser.lockPointer = true;
+        if (typeof Browser.resizeCanvas === 'undefined') Browser.resizeCanvas = false;
+        if (typeof Browser.vrDevice === 'undefined') Browser.vrDevice = null;
+  
+        var canvas = Module['canvas'];
+        function fullscreenChange() {
+          Browser.isFullscreen = false;
+          var canvasContainer = canvas.parentNode;
+          if ((document['fullscreenElement'] || document['mozFullScreenElement'] ||
+               document['msFullscreenElement'] || document['webkitFullscreenElement'] ||
+               document['webkitCurrentFullScreenElement']) === canvasContainer) {
+            canvas.exitFullscreen = document['exitFullscreen'] ||
+                                    document['cancelFullScreen'] ||
+                                    document['mozCancelFullScreen'] ||
+                                    document['msExitFullscreen'] ||
+                                    document['webkitCancelFullScreen'] ||
+                                    function() {};
+            canvas.exitFullscreen = canvas.exitFullscreen.bind(document);
+            if (Browser.lockPointer) canvas.requestPointerLock();
+            Browser.isFullscreen = true;
+            if (Browser.resizeCanvas) {
+              Browser.setFullscreenCanvasSize();
+            } else {
+              Browser.updateCanvasDimensions(canvas);
+            }
+          } else {
+            // remove the full screen specific parent of the canvas again to restore the HTML structure from before going full screen
+            canvasContainer.parentNode.insertBefore(canvas, canvasContainer);
+            canvasContainer.parentNode.removeChild(canvasContainer);
+  
+            if (Browser.resizeCanvas) {
+              Browser.setWindowedCanvasSize();
+            } else {
+              Browser.updateCanvasDimensions(canvas);
+            }
+          }
+          if (Module['onFullScreen']) Module['onFullScreen'](Browser.isFullscreen);
+          if (Module['onFullscreen']) Module['onFullscreen'](Browser.isFullscreen);
+        }
+  
+        if (!Browser.fullscreenHandlersInstalled) {
+          Browser.fullscreenHandlersInstalled = true;
+          document.addEventListener('fullscreenchange', fullscreenChange, false);
+          document.addEventListener('mozfullscreenchange', fullscreenChange, false);
+          document.addEventListener('webkitfullscreenchange', fullscreenChange, false);
+          document.addEventListener('MSFullscreenChange', fullscreenChange, false);
+        }
+  
+        // create a new parent to ensure the canvas has no siblings. this allows browsers to optimize full screen performance when its parent is the full screen root
+        var canvasContainer = document.createElement("div");
+        canvas.parentNode.insertBefore(canvasContainer, canvas);
+        canvasContainer.appendChild(canvas);
+  
+        // use parent of canvas as full screen root to allow aspect ratio correction (Firefox stretches the root to screen size)
+        canvasContainer.requestFullscreen = canvasContainer['requestFullscreen'] ||
+                                            canvasContainer['mozRequestFullScreen'] ||
+                                            canvasContainer['msRequestFullscreen'] ||
+                                           (canvasContainer['webkitRequestFullscreen'] ? function() { canvasContainer['webkitRequestFullscreen'](Element['ALLOW_KEYBOARD_INPUT']) } : null) ||
+                                           (canvasContainer['webkitRequestFullScreen'] ? function() { canvasContainer['webkitRequestFullScreen'](Element['ALLOW_KEYBOARD_INPUT']) } : null);
+  
+        if (vrDevice) {
+          canvasContainer.requestFullscreen({ vrDisplay: vrDevice });
+        } else {
+          canvasContainer.requestFullscreen();
+        }
+      },requestFullScreen:function (lockPointer, resizeCanvas, vrDevice) {
+          err('Browser.requestFullScreen() is deprecated. Please call Browser.requestFullscreen instead.');
+          Browser.requestFullScreen = function(lockPointer, resizeCanvas, vrDevice) {
+            return Browser.requestFullscreen(lockPointer, resizeCanvas, vrDevice);
+          }
+          return Browser.requestFullscreen(lockPointer, resizeCanvas, vrDevice);
+      },nextRAF:0,fakeRequestAnimationFrame:function (func) {
+        // try to keep 60fps between calls to here
+        var now = Date.now();
+        if (Browser.nextRAF === 0) {
+          Browser.nextRAF = now + 1000/60;
+        } else {
+          while (now + 2 >= Browser.nextRAF) { // fudge a little, to avoid timer jitter causing us to do lots of delay:0
+            Browser.nextRAF += 1000/60;
+          }
+        }
+        var delay = Math.max(Browser.nextRAF - now, 0);
+        setTimeout(func, delay);
+      },requestAnimationFrame:function requestAnimationFrame(func) {
+        if (typeof window === 'undefined') { // Provide fallback to setTimeout if window is undefined (e.g. in Node.js)
+          Browser.fakeRequestAnimationFrame(func);
+        } else {
+          if (!window.requestAnimationFrame) {
+            window.requestAnimationFrame = window['requestAnimationFrame'] ||
+                                           window['mozRequestAnimationFrame'] ||
+                                           window['webkitRequestAnimationFrame'] ||
+                                           window['msRequestAnimationFrame'] ||
+                                           window['oRequestAnimationFrame'] ||
+                                           Browser.fakeRequestAnimationFrame;
+          }
+          window.requestAnimationFrame(func);
+        }
+      },safeCallback:function (func) {
+        return function() {
+          if (!ABORT) return func.apply(null, arguments);
+        };
+      },allowAsyncCallbacks:true,queuedAsyncCallbacks:[],pauseAsyncCallbacks:function () {
+        Browser.allowAsyncCallbacks = false;
+      },resumeAsyncCallbacks:function () { // marks future callbacks as ok to execute, and synchronously runs any remaining ones right now
+        Browser.allowAsyncCallbacks = true;
+        if (Browser.queuedAsyncCallbacks.length > 0) {
+          var callbacks = Browser.queuedAsyncCallbacks;
+          Browser.queuedAsyncCallbacks = [];
+          callbacks.forEach(function(func) {
+            func();
+          });
+        }
+      },safeRequestAnimationFrame:function (func) {
+        return Browser.requestAnimationFrame(function() {
+          if (ABORT) return;
+          if (Browser.allowAsyncCallbacks) {
+            func();
+          } else {
+            Browser.queuedAsyncCallbacks.push(func);
+          }
+        });
+      },safeSetTimeout:function (func, timeout) {
+        Module['noExitRuntime'] = true;
+        return setTimeout(function() {
+          if (ABORT) return;
+          if (Browser.allowAsyncCallbacks) {
+            func();
+          } else {
+            Browser.queuedAsyncCallbacks.push(func);
+          }
+        }, timeout);
+      },safeSetInterval:function (func, timeout) {
+        Module['noExitRuntime'] = true;
+        return setInterval(function() {
+          if (ABORT) return;
+          if (Browser.allowAsyncCallbacks) {
+            func();
+          } // drop it on the floor otherwise, next interval will kick in
+        }, timeout);
+      },getMimetype:function (name) {
+        return {
+          'jpg': 'image/jpeg',
+          'jpeg': 'image/jpeg',
+          'png': 'image/png',
+          'bmp': 'image/bmp',
+          'ogg': 'audio/ogg',
+          'wav': 'audio/wav',
+          'mp3': 'audio/mpeg'
+        }[name.substr(name.lastIndexOf('.')+1)];
+      },getUserMedia:function (func) {
+        if(!window.getUserMedia) {
+          window.getUserMedia = navigator['getUserMedia'] ||
+                                navigator['mozGetUserMedia'];
+        }
+        window.getUserMedia(func);
+      },getMovementX:function (event) {
+        return event['movementX'] ||
+               event['mozMovementX'] ||
+               event['webkitMovementX'] ||
+               0;
+      },getMovementY:function (event) {
+        return event['movementY'] ||
+               event['mozMovementY'] ||
+               event['webkitMovementY'] ||
+               0;
+      },getMouseWheelDelta:function (event) {
+        var delta = 0;
+        switch (event.type) {
+          case 'DOMMouseScroll':
+            delta = event.detail;
+            break;
+          case 'mousewheel':
+            delta = event.wheelDelta;
+            break;
+          case 'wheel':
+            delta = event['deltaY'];
+            break;
+          default:
+            throw 'unrecognized mouse wheel event: ' + event.type;
+        }
+        return delta;
+      },mouseX:0,mouseY:0,mouseMovementX:0,mouseMovementY:0,touches:{},lastTouches:{},calculateMouseEvent:function (event) { // event should be mousemove, mousedown or mouseup
+        if (Browser.pointerLock) {
+          // When the pointer is locked, calculate the coordinates
+          // based on the movement of the mouse.
+          // Workaround for Firefox bug 764498
+          if (event.type != 'mousemove' &&
+              ('mozMovementX' in event)) {
+            Browser.mouseMovementX = Browser.mouseMovementY = 0;
+          } else {
+            Browser.mouseMovementX = Browser.getMovementX(event);
+            Browser.mouseMovementY = Browser.getMovementY(event);
+          }
+  
+          // check if SDL is available
+          if (typeof SDL != "undefined") {
+            Browser.mouseX = SDL.mouseX + Browser.mouseMovementX;
+            Browser.mouseY = SDL.mouseY + Browser.mouseMovementY;
+          } else {
+            // just add the mouse delta to the current absolut mouse position
+            // FIXME: ideally this should be clamped against the canvas size and zero
+            Browser.mouseX += Browser.mouseMovementX;
+            Browser.mouseY += Browser.mouseMovementY;
+          }
+        } else {
+          // Otherwise, calculate the movement based on the changes
+          // in the coordinates.
+          var rect = Module["canvas"].getBoundingClientRect();
+          var cw = Module["canvas"].width;
+          var ch = Module["canvas"].height;
+  
+          // Neither .scrollX or .pageXOffset are defined in a spec, but
+          // we prefer .scrollX because it is currently in a spec draft.
+          // (see: http://www.w3.org/TR/2013/WD-cssom-view-20131217/)
+          var scrollX = ((typeof window.scrollX !== 'undefined') ? window.scrollX : window.pageXOffset);
+          var scrollY = ((typeof window.scrollY !== 'undefined') ? window.scrollY : window.pageYOffset);
+          // If this assert lands, it's likely because the browser doesn't support scrollX or pageXOffset
+          // and we have no viable fallback.
+          assert((typeof scrollX !== 'undefined') && (typeof scrollY !== 'undefined'), 'Unable to retrieve scroll position, mouse positions likely broken.');
+  
+          if (event.type === 'touchstart' || event.type === 'touchend' || event.type === 'touchmove') {
+            var touch = event.touch;
+            if (touch === undefined) {
+              return; // the "touch" property is only defined in SDL
+  
+            }
+            var adjustedX = touch.pageX - (scrollX + rect.left);
+            var adjustedY = touch.pageY - (scrollY + rect.top);
+  
+            adjustedX = adjustedX * (cw / rect.width);
+            adjustedY = adjustedY * (ch / rect.height);
+  
+            var coords = { x: adjustedX, y: adjustedY };
+  
+            if (event.type === 'touchstart') {
+              Browser.lastTouches[touch.identifier] = coords;
+              Browser.touches[touch.identifier] = coords;
+            } else if (event.type === 'touchend' || event.type === 'touchmove') {
+              var last = Browser.touches[touch.identifier];
+              if (!last) last = coords;
+              Browser.lastTouches[touch.identifier] = last;
+              Browser.touches[touch.identifier] = coords;
+            }
+            return;
+          }
+  
+          var x = event.pageX - (scrollX + rect.left);
+          var y = event.pageY - (scrollY + rect.top);
+  
+          // the canvas might be CSS-scaled compared to its backbuffer;
+          // SDL-using content will want mouse coordinates in terms
+          // of backbuffer units.
+          x = x * (cw / rect.width);
+          y = y * (ch / rect.height);
+  
+          Browser.mouseMovementX = x - Browser.mouseX;
+          Browser.mouseMovementY = y - Browser.mouseY;
+          Browser.mouseX = x;
+          Browser.mouseY = y;
+        }
+      },asyncLoad:function (url, onload, onerror, noRunDep) {
+        var dep = !noRunDep ? getUniqueRunDependency('al ' + url) : '';
+        Module['readAsync'](url, function(arrayBuffer) {
+          assert(arrayBuffer, 'Loading data file "' + url + '" failed (no arrayBuffer).');
+          onload(new Uint8Array(arrayBuffer));
+          if (dep) removeRunDependency(dep);
+        }, function(event) {
+          if (onerror) {
+            onerror();
+          } else {
+            throw 'Loading data file "' + url + '" failed.';
+          }
+        });
+        if (dep) addRunDependency(dep);
+      },resizeListeners:[],updateResizeListeners:function () {
+        var canvas = Module['canvas'];
+        Browser.resizeListeners.forEach(function(listener) {
+          listener(canvas.width, canvas.height);
+        });
+      },setCanvasSize:function (width, height, noUpdates) {
+        var canvas = Module['canvas'];
+        Browser.updateCanvasDimensions(canvas, width, height);
+        if (!noUpdates) Browser.updateResizeListeners();
+      },windowedWidth:0,windowedHeight:0,setFullscreenCanvasSize:function () {
+        // check if SDL is available
+        if (typeof SDL != "undefined") {
+          var flags = HEAPU32[((SDL.screen)>>2)];
+          flags = flags | 0x00800000; // set SDL_FULLSCREEN flag
+          HEAP32[((SDL.screen)>>2)]=flags
+        }
+        Browser.updateCanvasDimensions(Module['canvas']);
+        Browser.updateResizeListeners();
+      },setWindowedCanvasSize:function () {
+        // check if SDL is available
+        if (typeof SDL != "undefined") {
+          var flags = HEAPU32[((SDL.screen)>>2)];
+          flags = flags & ~0x00800000; // clear SDL_FULLSCREEN flag
+          HEAP32[((SDL.screen)>>2)]=flags
+        }
+        Browser.updateCanvasDimensions(Module['canvas']);
+        Browser.updateResizeListeners();
+      },updateCanvasDimensions:function (canvas, wNative, hNative) {
+        if (wNative && hNative) {
+          canvas.widthNative = wNative;
+          canvas.heightNative = hNative;
+        } else {
+          wNative = canvas.widthNative;
+          hNative = canvas.heightNative;
+        }
+        var w = wNative;
+        var h = hNative;
+        if (Module['forcedAspectRatio'] && Module['forcedAspectRatio'] > 0) {
+          if (w/h < Module['forcedAspectRatio']) {
+            w = Math.round(h * Module['forcedAspectRatio']);
+          } else {
+            h = Math.round(w / Module['forcedAspectRatio']);
+          }
+        }
+        if (((document['fullscreenElement'] || document['mozFullScreenElement'] ||
+             document['msFullscreenElement'] || document['webkitFullscreenElement'] ||
+             document['webkitCurrentFullScreenElement']) === canvas.parentNode) && (typeof screen != 'undefined')) {
+           var factor = Math.min(screen.width / w, screen.height / h);
+           w = Math.round(w * factor);
+           h = Math.round(h * factor);
+        }
+        if (Browser.resizeCanvas) {
+          if (canvas.width  != w) canvas.width  = w;
+          if (canvas.height != h) canvas.height = h;
+          if (typeof canvas.style != 'undefined') {
+            canvas.style.removeProperty( "width");
+            canvas.style.removeProperty("height");
+          }
+        } else {
+          if (canvas.width  != wNative) canvas.width  = wNative;
+          if (canvas.height != hNative) canvas.height = hNative;
+          if (typeof canvas.style != 'undefined') {
+            if (w != wNative || h != hNative) {
+              canvas.style.setProperty( "width", w + "px", "important");
+              canvas.style.setProperty("height", h + "px", "important");
+            } else {
+              canvas.style.removeProperty( "width");
+              canvas.style.removeProperty("height");
+            }
+          }
+        }
+      },wgetRequests:{},nextWgetRequestHandle:0,getNextWgetRequestHandle:function () {
+        var handle = Browser.nextWgetRequestHandle;
+        Browser.nextWgetRequestHandle++;
+        return handle;
+      }};function _emscripten_call_worker(id, funcName, data, size, callback, arg) {
+      Module['noExitRuntime'] = true; // should we only do this if there is a callback?
+  
+      funcName = Pointer_stringify(funcName);
+      var info = Browser.workers[id];
+      var callbackId = -1;
+      if (callback) {
+        callbackId = info.callbacks.length;
+        info.callbacks.push({
+          func: getFuncWrapper(callback, 'viii'),
+          arg: arg
+        });
+        info.awaited++;
+      }
+      var transferObject = {
+        'funcName': funcName,
+        'callbackId': callbackId,
+        'data': data ? new Uint8Array(HEAPU8.subarray((data),(data + size))) : 0
+      };
+      if (data) {
+        info.worker.postMessage(transferObject, [transferObject.data.buffer]);
+      } else {
+        info.worker.postMessage(transferObject);
+      }
+    }
+
+  function _emscripten_create_worker(url) {
+      url = Pointer_stringify(url);
+      var id = Browser.workers.length;
+      var info = {
+        worker: new Worker(url),
+        callbacks: [],
+        awaited: 0,
+        buffer: 0,
+        bufferSize: 0
+      };
+      info.worker.onmessage = function info_worker_onmessage(msg) {
+        if (ABORT) return;
+        var info = Browser.workers[id];
+        if (!info) return; // worker was destroyed meanwhile
+        var callbackId = msg.data['callbackId'];
+        var callbackInfo = info.callbacks[callbackId];
+        if (!callbackInfo) return; // no callback or callback removed meanwhile
+        // Don't trash our callback state if we expect additional calls.
+        if (msg.data['finalResponse']) {
+          info.awaited--;
+          info.callbacks[callbackId] = null; // TODO: reuse callbackIds, compress this
+        }
+        var data = msg.data['data'];
+        if (data) {
+          if (!data.byteLength) data = new Uint8Array(data);
+          if (!info.buffer || info.bufferSize < data.length) {
+            if (info.buffer) _free(info.buffer);
+            info.bufferSize = data.length;
+            info.buffer = _malloc(data.length);
+          }
+          HEAPU8.set(data, info.buffer);
+          callbackInfo.func(info.buffer, data.length, callbackInfo.arg);
+        } else {
+          callbackInfo.func(0, 0, callbackInfo.arg);
+        }
+      };
+      Browser.workers.push(info);
+      return id;
+    }
+
 
   
   var ENV={};function _getenv(name) {
@@ -6981,12 +6549,6 @@ function copyTempDouble(ptr) {
     }
 
    
-
-  var _llvm_ceil_f64=Math_ceil;
-
-  var _llvm_fabs_f64=Math_abs;
-
-  var _llvm_floor_f64=Math_floor;
 
   function _llvm_stackrestore(p) {
       var self = _llvm_stacksave;
@@ -7004,10 +6566,6 @@ function copyTempDouble(ptr) {
       return self.LLVM_SAVEDSTACKS.length-1;
     }
 
-  function _llvm_trap() {
-      abort('trap!');
-    }
-
   
   function _emscripten_memcpy_big(dest, src, num) {
       HEAPU8.set(HEAPU8.subarray(src, src+num), dest);
@@ -7022,41 +6580,9 @@ function copyTempDouble(ptr) {
 
   function _pthread_cond_wait() { return 0; }
 
-  
-  var PTHREAD_SPECIFIC={};function _pthread_getspecific(key) {
-      return PTHREAD_SPECIFIC[key] || 0;
-    }
-
-  
-  var PTHREAD_SPECIFIC_NEXT_KEY=1;function _pthread_key_create(key, destructor) {
-      if (key == 0) {
-        return ERRNO_CODES.EINVAL;
-      }
-      HEAP32[((key)>>2)]=PTHREAD_SPECIFIC_NEXT_KEY;
-      // values start at 0
-      PTHREAD_SPECIFIC[PTHREAD_SPECIFIC_NEXT_KEY] = 0;
-      PTHREAD_SPECIFIC_NEXT_KEY++;
-      return 0;
-    }
-
    
 
    
-
-  function _pthread_once(ptr, func) {
-      if (!_pthread_once.seen) _pthread_once.seen = {};
-      if (ptr in _pthread_once.seen) return;
-      Module['dynCall_v'](func);
-      _pthread_once.seen[ptr] = 1;
-    }
-
-  function _pthread_setspecific(key, value) {
-      if (!(key in PTHREAD_SPECIFIC)) {
-        return ERRNO_CODES.EINVAL;
-      }
-      PTHREAD_SPECIFIC[key] = value;
-      return 0;
-    }
 
    
 
@@ -7407,11 +6933,29 @@ if (ENVIRONMENT_IS_NODE) { var fs = require("fs"); var NODEJS_PATH = require("pa
 embind_init_charCodes();
 BindingError = Module['BindingError'] = extendError(Error, 'BindingError');;
 InternalError = Module['InternalError'] = extendError(Error, 'InternalError');;
-init_ClassHandle();
-init_RegisteredPointer();
-init_embind();;
-UnboundTypeError = Module['UnboundTypeError'] = extendError(Error, 'UnboundTypeError');;
 init_emval();;
+Module["requestFullScreen"] = function Module_requestFullScreen(lockPointer, resizeCanvas, vrDevice) { err("Module.requestFullScreen is deprecated. Please call Module.requestFullscreen instead."); Module["requestFullScreen"] = Module["requestFullscreen"]; Browser.requestFullScreen(lockPointer, resizeCanvas, vrDevice) };
+  Module["requestFullscreen"] = function Module_requestFullscreen(lockPointer, resizeCanvas, vrDevice) { Browser.requestFullscreen(lockPointer, resizeCanvas, vrDevice) };
+  Module["requestAnimationFrame"] = function Module_requestAnimationFrame(func) { Browser.requestAnimationFrame(func) };
+  Module["setCanvasSize"] = function Module_setCanvasSize(width, height, noUpdates) { Browser.setCanvasSize(width, height, noUpdates) };
+  Module["pauseMainLoop"] = function Module_pauseMainLoop() { Browser.mainLoop.pause() };
+  Module["resumeMainLoop"] = function Module_resumeMainLoop() { Browser.mainLoop.resume() };
+  Module["getUserMedia"] = function Module_getUserMedia() { Browser.getUserMedia() }
+  Module["createContext"] = function Module_createContext(canvas, useWebGL, setInModule, webGLContextAttributes) { return Browser.createContext(canvas, useWebGL, setInModule, webGLContextAttributes) };
+if (ENVIRONMENT_IS_NODE) {
+    _emscripten_get_now = function _emscripten_get_now_actual() {
+      var t = process['hrtime']();
+      return t[0] * 1e3 + t[1] / 1e6;
+    };
+  } else if (typeof dateNow !== 'undefined') {
+    _emscripten_get_now = dateNow;
+  } else if (typeof self === 'object' && self['performance'] && typeof self['performance']['now'] === 'function') {
+    _emscripten_get_now = function() { return self['performance']['now'](); };
+  } else if (typeof performance === 'object' && typeof performance['now'] === 'function') {
+    _emscripten_get_now = function() { return performance['now'](); };
+  } else {
+    _emscripten_get_now = Date.now;
+  };
 DYNAMICTOP_PTR = staticAlloc(4);
 
 STACK_BASE = STACKTOP = alignMemory(STATICTOP);
@@ -7454,10 +6998,6 @@ function intArrayToString(array) {
 
 
 
-function nullFunc_diii(x) { err("Invalid function pointer called with signature 'diii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  err("Build with ASSERTIONS=2 for more info.");abort(x) }
-
-function nullFunc_diiii(x) { err("Invalid function pointer called with signature 'diiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  err("Build with ASSERTIONS=2 for more info.");abort(x) }
-
 function nullFunc_ii(x) { err("Invalid function pointer called with signature 'ii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  err("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_iii(x) { err("Invalid function pointer called with signature 'iii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  err("Build with ASSERTIONS=2 for more info.");abort(x) }
@@ -7496,31 +7036,9 @@ function nullFunc_viiiiii(x) { err("Invalid function pointer called with signatu
 
 function nullFunc_viijii(x) { err("Invalid function pointer called with signature 'viijii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  err("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-Module['wasmTableSize'] = 9856;
+Module['wasmTableSize'] = 7840;
 
-Module['wasmMaxTableSize'] = 9856;
-
-function invoke_diii(index,a1,a2,a3) {
-  var sp = stackSave();
-  try {
-    return Module["dynCall_diii"](index,a1,a2,a3);
-  } catch(e) {
-    stackRestore(sp);
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
-
-function invoke_diiii(index,a1,a2,a3,a4) {
-  var sp = stackSave();
-  try {
-    return Module["dynCall_diiii"](index,a1,a2,a3,a4);
-  } catch(e) {
-    stackRestore(sp);
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
+Module['wasmMaxTableSize'] = 7840;
 
 function invoke_ii(index,a1) {
   var sp = stackSave();
@@ -7733,7 +7251,7 @@ function invoke_viijii(index,a1,a2,a3,a4,a5,a6) {
 
 Module.asmGlobalArg = {};
 
-Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_diii": nullFunc_diii, "nullFunc_diiii": nullFunc_diiii, "nullFunc_ii": nullFunc_ii, "nullFunc_iii": nullFunc_iii, "nullFunc_iiii": nullFunc_iiii, "nullFunc_iiiii": nullFunc_iiiii, "nullFunc_iiiiid": nullFunc_iiiiid, "nullFunc_iiiiii": nullFunc_iiiiii, "nullFunc_iiiiiid": nullFunc_iiiiiid, "nullFunc_iiiiiii": nullFunc_iiiiiii, "nullFunc_iiiiiiii": nullFunc_iiiiiiii, "nullFunc_iiiiiiiii": nullFunc_iiiiiiiii, "nullFunc_iiiiij": nullFunc_iiiiij, "nullFunc_v": nullFunc_v, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_viii": nullFunc_viii, "nullFunc_viiii": nullFunc_viiii, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_viijii": nullFunc_viijii, "invoke_diii": invoke_diii, "invoke_diiii": invoke_diiii, "invoke_ii": invoke_ii, "invoke_iii": invoke_iii, "invoke_iiii": invoke_iiii, "invoke_iiiii": invoke_iiiii, "invoke_iiiiid": invoke_iiiiid, "invoke_iiiiii": invoke_iiiiii, "invoke_iiiiiid": invoke_iiiiiid, "invoke_iiiiiii": invoke_iiiiiii, "invoke_iiiiiiii": invoke_iiiiiiii, "invoke_iiiiiiiii": invoke_iiiiiiiii, "invoke_iiiiij": invoke_iiiiij, "invoke_v": invoke_v, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_viii": invoke_viii, "invoke_viiii": invoke_viiii, "invoke_viiiii": invoke_viiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_viijii": invoke_viijii, "ClassHandle": ClassHandle, "ClassHandle_clone": ClassHandle_clone, "ClassHandle_delete": ClassHandle_delete, "ClassHandle_deleteLater": ClassHandle_deleteLater, "ClassHandle_isAliasOf": ClassHandle_isAliasOf, "ClassHandle_isDeleted": ClassHandle_isDeleted, "RegisteredClass": RegisteredClass, "RegisteredPointer": RegisteredPointer, "RegisteredPointer_deleteObject": RegisteredPointer_deleteObject, "RegisteredPointer_destructor": RegisteredPointer_destructor, "RegisteredPointer_fromWireType": RegisteredPointer_fromWireType, "RegisteredPointer_getPointee": RegisteredPointer_getPointee, "___assert_fail": ___assert_fail, "___cxa_allocate_exception": ___cxa_allocate_exception, "___cxa_begin_catch": ___cxa_begin_catch, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "___cxa_pure_virtual": ___cxa_pure_virtual, "___cxa_throw": ___cxa_throw, "___cxa_uncaught_exception": ___cxa_uncaught_exception, "___gxx_personality_v0": ___gxx_personality_v0, "___lock": ___lock, "___map_file": ___map_file, "___resumeException": ___resumeException, "___setErrNo": ___setErrNo, "___syscall140": ___syscall140, "___syscall145": ___syscall145, "___syscall146": ___syscall146, "___syscall54": ___syscall54, "___syscall6": ___syscall6, "___syscall91": ___syscall91, "___unlock": ___unlock, "__addDays": __addDays, "__arraySum": __arraySum, "__embind_register_bool": __embind_register_bool, "__embind_register_class": __embind_register_class, "__embind_register_class_constructor": __embind_register_class_constructor, "__embind_register_class_function": __embind_register_class_function, "__embind_register_emval": __embind_register_emval, "__embind_register_float": __embind_register_float, "__embind_register_function": __embind_register_function, "__embind_register_integer": __embind_register_integer, "__embind_register_memory_view": __embind_register_memory_view, "__embind_register_std_string": __embind_register_std_string, "__embind_register_std_wstring": __embind_register_std_wstring, "__embind_register_void": __embind_register_void, "__emval_addMethodCaller": __emval_addMethodCaller, "__emval_allocateDestructors": __emval_allocateDestructors, "__emval_as": __emval_as, "__emval_call_method": __emval_call_method, "__emval_call_void_method": __emval_call_void_method, "__emval_decref": __emval_decref, "__emval_get_global": __emval_get_global, "__emval_get_method_caller": __emval_get_method_caller, "__emval_get_module_property": __emval_get_module_property, "__emval_get_property": __emval_get_property, "__emval_incref": __emval_incref, "__emval_lookupTypes": __emval_lookupTypes, "__emval_new": __emval_new, "__emval_new_cstring": __emval_new_cstring, "__emval_new_object": __emval_new_object, "__emval_register": __emval_register, "__emval_run_destructors": __emval_run_destructors, "__emval_set_property": __emval_set_property, "__isLeapYear": __isLeapYear, "_abort": _abort, "_embind_repr": _embind_repr, "_emscripten_memcpy_big": _emscripten_memcpy_big, "_getenv": _getenv, "_llvm_ceil_f64": _llvm_ceil_f64, "_llvm_fabs_f64": _llvm_fabs_f64, "_llvm_floor_f64": _llvm_floor_f64, "_llvm_stackrestore": _llvm_stackrestore, "_llvm_stacksave": _llvm_stacksave, "_llvm_trap": _llvm_trap, "_pthread_cond_wait": _pthread_cond_wait, "_pthread_getspecific": _pthread_getspecific, "_pthread_key_create": _pthread_key_create, "_pthread_once": _pthread_once, "_pthread_setspecific": _pthread_setspecific, "_strftime": _strftime, "_strftime_l": _strftime_l, "constNoSmartPtrRawPointerToWireType": constNoSmartPtrRawPointerToWireType, "count_emval_handles": count_emval_handles, "craftEmvalAllocator": craftEmvalAllocator, "craftInvokerFunction": craftInvokerFunction, "createNamedFunction": createNamedFunction, "downcastPointer": downcastPointer, "embind__requireFunction": embind__requireFunction, "embind_init_charCodes": embind_init_charCodes, "emval_get_global": emval_get_global, "ensureOverloadTable": ensureOverloadTable, "exposePublicSymbol": exposePublicSymbol, "extendError": extendError, "floatReadValueFromPointer": floatReadValueFromPointer, "flushPendingDeletes": flushPendingDeletes, "genericPointerToWireType": genericPointerToWireType, "getBasestPointer": getBasestPointer, "getInheritedInstance": getInheritedInstance, "getInheritedInstanceCount": getInheritedInstanceCount, "getLiveInheritedInstances": getLiveInheritedInstances, "getShiftFromSize": getShiftFromSize, "getStringOrSymbol": getStringOrSymbol, "getTypeName": getTypeName, "get_first_emval": get_first_emval, "heap32VectorToArray": heap32VectorToArray, "init_ClassHandle": init_ClassHandle, "init_RegisteredPointer": init_RegisteredPointer, "init_embind": init_embind, "init_emval": init_emval, "integerReadValueFromPointer": integerReadValueFromPointer, "makeClassHandle": makeClassHandle, "makeLegalFunctionName": makeLegalFunctionName, "new_": new_, "nonConstNoSmartPtrRawPointerToWireType": nonConstNoSmartPtrRawPointerToWireType, "readLatin1String": readLatin1String, "registerType": registerType, "replacePublicSymbol": replacePublicSymbol, "requireHandle": requireHandle, "requireRegisteredType": requireRegisteredType, "runDestructor": runDestructor, "runDestructors": runDestructors, "setDelayFunction": setDelayFunction, "shallowCopyInternalPointer": shallowCopyInternalPointer, "simpleReadValueFromPointer": simpleReadValueFromPointer, "throwBindingError": throwBindingError, "throwInstanceAlreadyDeleted": throwInstanceAlreadyDeleted, "throwInternalError": throwInternalError, "throwUnboundTypeError": throwUnboundTypeError, "upcastPointer": upcastPointer, "whenDependentTypesAreResolved": whenDependentTypesAreResolved, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX };
+Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_ii": nullFunc_ii, "nullFunc_iii": nullFunc_iii, "nullFunc_iiii": nullFunc_iiii, "nullFunc_iiiii": nullFunc_iiiii, "nullFunc_iiiiid": nullFunc_iiiiid, "nullFunc_iiiiii": nullFunc_iiiiii, "nullFunc_iiiiiid": nullFunc_iiiiiid, "nullFunc_iiiiiii": nullFunc_iiiiiii, "nullFunc_iiiiiiii": nullFunc_iiiiiiii, "nullFunc_iiiiiiiii": nullFunc_iiiiiiiii, "nullFunc_iiiiij": nullFunc_iiiiij, "nullFunc_v": nullFunc_v, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_viii": nullFunc_viii, "nullFunc_viiii": nullFunc_viiii, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_viijii": nullFunc_viijii, "invoke_ii": invoke_ii, "invoke_iii": invoke_iii, "invoke_iiii": invoke_iiii, "invoke_iiiii": invoke_iiiii, "invoke_iiiiid": invoke_iiiiid, "invoke_iiiiii": invoke_iiiiii, "invoke_iiiiiid": invoke_iiiiiid, "invoke_iiiiiii": invoke_iiiiiii, "invoke_iiiiiiii": invoke_iiiiiiii, "invoke_iiiiiiiii": invoke_iiiiiiiii, "invoke_iiiiij": invoke_iiiiij, "invoke_v": invoke_v, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_viii": invoke_viii, "invoke_viiii": invoke_viiii, "invoke_viiiii": invoke_viiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_viijii": invoke_viijii, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "___cxa_uncaught_exception": ___cxa_uncaught_exception, "___gxx_personality_v0": ___gxx_personality_v0, "___lock": ___lock, "___map_file": ___map_file, "___resumeException": ___resumeException, "___setErrNo": ___setErrNo, "___syscall140": ___syscall140, "___syscall145": ___syscall145, "___syscall146": ___syscall146, "___syscall54": ___syscall54, "___syscall6": ___syscall6, "___syscall91": ___syscall91, "___unlock": ___unlock, "__addDays": __addDays, "__arraySum": __arraySum, "__embind_register_bool": __embind_register_bool, "__embind_register_emval": __embind_register_emval, "__embind_register_float": __embind_register_float, "__embind_register_integer": __embind_register_integer, "__embind_register_memory_view": __embind_register_memory_view, "__embind_register_std_string": __embind_register_std_string, "__embind_register_std_wstring": __embind_register_std_wstring, "__embind_register_void": __embind_register_void, "__emval_decref": __emval_decref, "__emval_register": __emval_register, "__isLeapYear": __isLeapYear, "_abort": _abort, "_embind_repr": _embind_repr, "_emscripten_call_worker": _emscripten_call_worker, "_emscripten_create_worker": _emscripten_create_worker, "_emscripten_get_now": _emscripten_get_now, "_emscripten_memcpy_big": _emscripten_memcpy_big, "_emscripten_set_main_loop": _emscripten_set_main_loop, "_emscripten_set_main_loop_timing": _emscripten_set_main_loop_timing, "_getenv": _getenv, "_llvm_stackrestore": _llvm_stackrestore, "_llvm_stacksave": _llvm_stacksave, "_pthread_cond_wait": _pthread_cond_wait, "_strftime": _strftime, "_strftime_l": _strftime_l, "count_emval_handles": count_emval_handles, "createNamedFunction": createNamedFunction, "embind_init_charCodes": embind_init_charCodes, "extendError": extendError, "floatReadValueFromPointer": floatReadValueFromPointer, "getShiftFromSize": getShiftFromSize, "get_first_emval": get_first_emval, "init_emval": init_emval, "integerReadValueFromPointer": integerReadValueFromPointer, "makeLegalFunctionName": makeLegalFunctionName, "readLatin1String": readLatin1String, "registerType": registerType, "simpleReadValueFromPointer": simpleReadValueFromPointer, "throwBindingError": throwBindingError, "throwInternalError": throwInternalError, "whenDependentTypesAreResolved": whenDependentTypesAreResolved, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX };
 // EMSCRIPTEN_START_ASM
 var asm =Module["asm"]// EMSCRIPTEN_END_ASM
 (Module.asmGlobalArg, Module.asmLibraryArg, buffer);
@@ -7742,12 +7260,6 @@ var real___GLOBAL__I_000101 = asm["__GLOBAL__I_000101"]; asm["__GLOBAL__I_000101
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return real___GLOBAL__I_000101.apply(null, arguments);
-};
-
-var real___GLOBAL__sub_I_Util_cpp = asm["__GLOBAL__sub_I_Util_cpp"]; asm["__GLOBAL__sub_I_Util_cpp"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real___GLOBAL__sub_I_Util_cpp.apply(null, arguments);
 };
 
 var real___GLOBAL__sub_I_bind_cpp = asm["__GLOBAL__sub_I_bind_cpp"]; asm["__GLOBAL__sub_I_bind_cpp"] = function() {
@@ -7808,6 +7320,12 @@ var real__llvm_bswap_i32 = asm["_llvm_bswap_i32"]; asm["_llvm_bswap_i32"] = func
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return real__llvm_bswap_i32.apply(null, arguments);
+};
+
+var real__main = asm["_main"]; asm["_main"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__main.apply(null, arguments);
 };
 
 var real__malloc = asm["_malloc"]; asm["_malloc"] = function() {
@@ -7892,10 +7410,6 @@ var __GLOBAL__I_000101 = Module["__GLOBAL__I_000101"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["__GLOBAL__I_000101"].apply(null, arguments) };
-var __GLOBAL__sub_I_Util_cpp = Module["__GLOBAL__sub_I_Util_cpp"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["__GLOBAL__sub_I_Util_cpp"].apply(null, arguments) };
 var __GLOBAL__sub_I_bind_cpp = Module["__GLOBAL__sub_I_bind_cpp"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -7940,6 +7454,10 @@ var _llvm_bswap_i32 = Module["_llvm_bswap_i32"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["_llvm_bswap_i32"].apply(null, arguments) };
+var _main = Module["_main"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["_main"].apply(null, arguments) };
 var _malloc = Module["_malloc"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -8004,14 +7522,6 @@ var stackSave = Module["stackSave"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["stackSave"].apply(null, arguments) };
-var dynCall_diii = Module["dynCall_diii"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["dynCall_diii"].apply(null, arguments) };
-var dynCall_diiii = Module["dynCall_diiii"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["dynCall_diiii"].apply(null, arguments) };
 var dynCall_ii = Module["dynCall_ii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -8193,6 +7703,52 @@ dependenciesFulfilled = function runCaller() {
   if (!Module['calledRun']) dependenciesFulfilled = runCaller; // try this again later, after new deps are fulfilled
 }
 
+Module['callMain'] = function callMain(args) {
+  assert(runDependencies == 0, 'cannot call main when async dependencies remain! (listen on __ATMAIN__)');
+  assert(__ATPRERUN__.length == 0, 'cannot call main when preRun functions remain to be called');
+
+  args = args || [];
+
+  ensureInitRuntime();
+
+  var argc = args.length+1;
+  var argv = stackAlloc((argc + 1) * 4);
+  HEAP32[argv >> 2] = allocateUTF8OnStack(Module['thisProgram']);
+  for (var i = 1; i < argc; i++) {
+    HEAP32[(argv >> 2) + i] = allocateUTF8OnStack(args[i - 1]);
+  }
+  HEAP32[(argv >> 2) + argc] = 0;
+
+
+  try {
+
+    var ret = Module['_main'](argc, argv, 0);
+
+
+    // if we're not running an evented main loop, it's time to exit
+      exit(ret, /* implicit = */ true);
+  }
+  catch(e) {
+    if (e instanceof ExitStatus) {
+      // exit() throws this once it's done to make sure execution
+      // has been stopped completely
+      return;
+    } else if (e == 'SimulateInfiniteLoop') {
+      // running an evented main loop, don't immediately exit
+      Module['noExitRuntime'] = true;
+      return;
+    } else {
+      var toLog = e;
+      if (e && typeof e === 'object' && e.stack) {
+        toLog = [e, e.stack];
+      }
+      err('exception thrown: ' + toLog);
+      Module['quit'](1, e);
+    }
+  } finally {
+    calledMain = true;
+  }
+}
 
 
 
@@ -8224,7 +7780,7 @@ function run(args) {
 
     if (Module['onRuntimeInitialized']) Module['onRuntimeInitialized']();
 
-    assert(!Module['_main'], 'compiled without a main, but one is present. if you added it from JS, use Module["onRuntimeInitialized"]');
+    if (Module['_main'] && shouldRunNow) Module['callMain'](args);
 
     postRun();
   }
@@ -8355,6 +7911,11 @@ if (Module['preInit']) {
   }
 }
 
+// shouldRunNow refers to calling main(), not run().
+var shouldRunNow = true;
+if (Module['noInitialRun']) {
+  shouldRunNow = false;
+}
 
 Module["noExitRuntime"] = true;
 

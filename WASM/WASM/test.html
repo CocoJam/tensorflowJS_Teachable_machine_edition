@@ -1,21 +1,51 @@
-<script src="dlib.js"></script>
-<script>
-    Module.addOnPostRun(() => {
-        var data = new Float64Array(10);
+<!doctype html>
+<html>
 
-        for (var i = 0; i < data.length; i++) {
-            data[i] = i;
+<head>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
         }
 
-        console.log(Module)
-        window.data = data;
-        window.x = data
-        window.wasm = Module;
-        // console.log(Module.matrix)
-        // console.log(Module.vec_to_mat(1,10,10));
-        m = new wasm.matrix(data, 5, 2);
-        console.log(m.loc(0, 0))
-        console.log(m.loc(0, 1))
-        console.log(m.loc(0, 2))
-    });
-</script>
+        .canvas {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <input id="upload" type="file" multiple/>
+    <script src="dlib.js"></script>
+    <!-- <script src="boot.js"></script>
+    <script src="worker.js"></script> -->
+    <script src="FileHandler.js"></script>
+    <script>
+        Module.addOnPostRun(() => {
+            var data = new Float64Array(10);
+
+            for (var i = 0; i < data.length; i++) {
+                data[i] = i;
+            }
+
+            console.log(Module)
+            window.data = data;
+            window.x = data
+            window.wasm = Module;
+            // console.log(Module.matrix)
+            // console.log(Module.vec_to_mat(1,10,10));
+            m = new wasm.matrix(data, 5, 2);
+            console.log(m.loc(0, 0))
+            console.log(m.loc(0, 1))
+            console.log(m.loc(0, 2))
+        });
+        var input = document.getElementById("upload");
+        input.addEventListener("change", fileUploadHandling)
+    </script>
+
+</body>
+
+</html>
