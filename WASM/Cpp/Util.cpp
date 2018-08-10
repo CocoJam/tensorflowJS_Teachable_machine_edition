@@ -5,6 +5,8 @@
 #include <array>
 #include <vector>
 #include <cstdlib>
+#include <regex>
+#include <experimental/string_view>
 // em++ -std=c++17 --bind -L lib/dlib/build/dlib/libdlib.so -I lib/dlib Util.cpp -o ../WASM/dlib.js -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s WASM=1 -s ALLOW_MEMORY_GROWTH=1
 #include <iostream>
 #include <dlib/matrix.h>
@@ -32,8 +34,83 @@ using namespace std;
 //     return 0.0;
 // }
 
-void String_parse(string str){
-    print(str);
+// const std::string_view SV(std::string str){
+
+// };
+
+std::vector<std::string_view> splitSV(std::string_view strv, std::string_view delims = " ")
+{
+    std::vector<std::string_view> output;
+    size_t first = 0;
+    // std::string_view strv = str;
+    while (first < strv.size())
+    {
+        const auto second = strv.find_first_of(delims, first);
+
+        if (first != second)
+            output.emplace_back(strv.substr(first, second - first));
+
+        if (second == std::string_view::npos)
+            break;
+
+        first = second + 1;
+    }
+    return output;
+}
+
+std::vector<std::string> split(const std::string input, const std::regex re)
+{
+    sregex_token_iterator it(input.begin(), input.end(), re, -1);
+    sregex_token_iterator reg_end;
+    std::vector<std::string> vec;
+    for (; it != reg_end; ++it)
+    {
+        vec.push_back(it->str());
+    }
+    return vec;
+}
+
+void String_CSV_parse(string str)
+{
+    std::string_view strv = str;
+    std::vector<std::string_view> vec = splitSV(strv, "\n");
+    for (int i = 0; i < vec.size(); i++)
+    {
+        std::vector<std::string_view> vec2 = splitSV(vec.at(i), "\t");
+    };
+    // print(str);
+}
+
+// //Uint8_arry reader??
+// void readFile(const int &addr, const size_t &len)
+// {
+//     uint8_t *data = reinterpret_cast<uint8_t *>(addr);
+//     for (size_t i = 0; i < len; ++i)
+//     {   
+//         // print(data[i]);
+//         data[i] += 1;
+//     }
+
+//     // print( typeid(data[0]));
+// }
+
+
+//Uint8_arry reader??
+void readFile(const int &addr, const size_t &len)
+{
+    uint8_t *data = reinterpret_cast<uint8_t *>(addr);
+    for (size_t i = 0; i < len; ++i)
+    {   
+        if(data[i]==44){
+            print(data[i-1]);
+            print(data[i]);
+            print(data[i+1]);
+        }
+        // //  print(typeid(data[i]).name());
+        // data[i] += 1;
+    }
+
+    // print(typeid(data[0]).name());
 }
 
 EMSCRIPTEN_BINDINGS(what_is_this_name_for)
@@ -42,12 +119,13 @@ EMSCRIPTEN_BINDINGS(what_is_this_name_for)
     emscripten::function("ones_matrix", &Em_matrix::ones_matrix<double>);
     emscripten::function("randm", &Em_matrix::randm<double>);
     emscripten::function("pointwise_multiply", &Em_matrix::pointwise_multiply<double>, emscripten::allow_raw_pointers());
-    emscripten::function("trans", &Em_matrix::trans<double>,emscripten::allow_raw_pointers());
-    emscripten::function("round", &Em_matrix::round<double>,emscripten::allow_raw_pointers());
-    emscripten::function("ceil", &Em_matrix::ceil<double>,emscripten::allow_raw_pointers());
-    emscripten::function("floor", &Em_matrix::floor<double>,emscripten::allow_raw_pointers());
-    emscripten::function("diag", &Em_matrix::diag<double>,emscripten::allow_raw_pointers());
-    emscripten::function("string_parse", &String_parse);
+    emscripten::function("trans", &Em_matrix::trans<double>, emscripten::allow_raw_pointers());
+    emscripten::function("round", &Em_matrix::round<double>, emscripten::allow_raw_pointers());
+    emscripten::function("ceil", &Em_matrix::ceil<double>, emscripten::allow_raw_pointers());
+    emscripten::function("floor", &Em_matrix::floor<double>, emscripten::allow_raw_pointers());
+    emscripten::function("diag", &Em_matrix::diag<double>, emscripten::allow_raw_pointers());
+    emscripten::function("String_CSV_parse", &String_CSV_parse);
+    emscripten::function("readFile", &readFile);
 
     emscripten::class_<Em_matrix::matrix<double>>("matrix")
         .constructor<emscripten::val, int, int>()
@@ -61,9 +139,8 @@ EMSCRIPTEN_BINDINGS(what_is_this_name_for)
         .function("add", &Em_matrix::matrix<double>::add)
         .function("minus", &Em_matrix::matrix<double>::minus)
         .function("divides", &Em_matrix::matrix<double>::divides)
-        .function("multiplies", &Em_matrix::matrix<double>::multiplies )
+        .function("multiplies", &Em_matrix::matrix<double>::multiplies)
         .function("nr", &Em_matrix::matrix<double>::nr)
         .function("nc", &Em_matrix::matrix<double>::nc)
         .function("inv", &Em_matrix::matrix<double>::inv);
-
 }

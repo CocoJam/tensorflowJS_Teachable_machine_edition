@@ -14,12 +14,28 @@
             width: 100vw;
             height: 100vh;
         }
+
+        .thumb {
+            height: 75px;
+            border: 1px solid #000;
+            margin: 10px 5px 0 0;
+        }
+
+        .example {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 
 <body>
+    <div class="example">
+        <div id="drop_zone">Drop files here</div>
+        <output id="list"></output>
+    </div>
     <input id="upload" type="file" multiple/>
     <script src="dlib.js"></script>
+    <script src="DragDrop.js"></script>
     <!-- <script src="boot.js"></script>
     <script src="worker.js"></script> -->
     <script src="FileHandler.js"></script>
