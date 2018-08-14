@@ -1,7 +1,6 @@
 import React from 'react';
 import * as d3 from "d3";
 import * as cf from "crossfilter";
-import * as papa from "papaparse"
 class FileUploadHandling extends React.Component {
 
     constructor(props) {
@@ -94,7 +93,6 @@ class FileUploadHandling extends React.Component {
             var dimensionCategory = cfdata.dimension(item => item[data.columns[0]])
             console.log(dimensionCategory)
             // d3.create("div").data(data).enter().text((d)=>console.log(d));
-
             this.setState({ ...this.state, fileContent: data })
         } catch (e) {
             console.log(e);
