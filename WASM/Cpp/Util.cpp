@@ -6,6 +6,8 @@
 #include <vector>
 #include <cstdlib>
 #include <regex>
+#include <string>
+#include <dlib/string.h>
 #include <experimental/string_view>
 // em++ -std=c++17 --bind -L lib/dlib/build/dlib/libdlib.so -I lib/dlib Util.cpp -o ../WASM/dlib.js -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s WASM=1 -s ALLOW_MEMORY_GROWTH=1
 #include <iostream>
@@ -81,36 +83,62 @@ void String_CSV_parse(string str)
     // print(str);
 }
 
-// //Uint8_arry reader??
-// void readFile(const int &addr, const size_t &len)
-// {
-//     uint8_t *data = reinterpret_cast<uint8_t *>(addr);
-//     for (size_t i = 0; i < len; ++i)
-//     {   
-//         // print(data[i]);
-//         data[i] += 1;
-//     }
-
-//     // print( typeid(data[0]));
-// }
-
-
 //Uint8_arry reader??
 void readFile(const int &addr, const size_t &len)
 {
     uint8_t *data = reinterpret_cast<uint8_t *>(addr);
-    for (size_t i = 0; i < len; ++i)
-    {   
-        if(data[i]==44){
-            print(data[i-1]);
-            print(data[i]);
-            print(data[i+1]);
-        }
-        // //  print(typeid(data[i]).name());
-        // data[i] += 1;
-    }
+     std::string str= std::string((char *)data);
+    // return str;
+    // print( typeid(data[0]));
+}
 
-    // print(typeid(data[0]).name());
+// //Uint8_arry reader??
+// void readFile(const int &addr, const int &len)
+// {
+//     uint8_t *data = reinterpret_cast<uint8_t *>(addr);
+//    std::string str= std::string((char *)data);
+//     // print(str.length());
+//     std::vector<string> vec;
+//      vec = dlib::split(str,"\n|,");
+//     // for (size_t i = 0; i < vec.size();i++){
+//     //     print(vec.at(i));
+//     // }
+
+//     // std::memcpy(charray.data(), data, len);
+//     // std::string full_text= malloc(len);
+//     // strcpy(full_text, data );
+//     // for (size_t i = 0; i < len; ++i)
+//     // {
+//     //     if (data[i] == 44)
+//     //     {
+//     //         // print(data[i-1]);
+//     //         // print(data[i]);
+//     //         // print(data[i+1]);
+//     //     }
+//     //     if (data[i] == '\n')
+//     //     {
+//     //         // print(data[i-1]);
+//     //         // print(data[i-1]);
+//     //         // print(data[i+1]);
+//     //     }
+
+//     // }
+//     // print(full_text);
+//     // free(full_text);
+// }
+
+void readFileFloat(const int &addr, const size_t &len)
+{
+    float *data = reinterpret_cast<float *>(addr);
+    for (size_t i = 0; i < len; ++i)
+    {
+        if (data[i] == 44)
+        {
+        }
+        if (data[i] == '\n')
+        {
+        }
+    }
 }
 
 EMSCRIPTEN_BINDINGS(what_is_this_name_for)
@@ -126,7 +154,7 @@ EMSCRIPTEN_BINDINGS(what_is_this_name_for)
     emscripten::function("diag", &Em_matrix::diag<double>, emscripten::allow_raw_pointers());
     emscripten::function("String_CSV_parse", &String_CSV_parse);
     emscripten::function("readFile", &readFile);
-
+    // emscripten::function("readFileFloat", &readFileFloat);
     emscripten::class_<Em_matrix::matrix<double>>("matrix")
         .constructor<emscripten::val, int, int>()
         .constructor<int, int>()

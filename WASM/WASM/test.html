@@ -26,6 +26,9 @@
             border: 1px solid #ccc;
         }
     </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="http://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+    
 </head>
 
 <body>
@@ -36,8 +39,7 @@
     <input id="upload" type="file" multiple/>
     <script src="dlib.js"></script>
     <script src="DragDrop.js"></script>
-    <!-- <script src="boot.js"></script>
-    <script src="worker.js"></script> -->
+    <script src="webWorkerSetUp.js"></script>
     <script src="FileHandler.js"></script>
     <script>
         Module.addOnPostRun(() => {

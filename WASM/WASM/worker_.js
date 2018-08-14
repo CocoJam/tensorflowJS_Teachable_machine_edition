@@ -1,10 +1,53 @@
+self.importScripts('dlib.js');
+self.importScripts("http://d3js.org/d3.v5.min.js");
+// self.importScripts("https://cdn.plot.ly/plotly-latest.min.js");
+// console.log(d3)
+self.onmessage = function (evt) {
+
+    this.console.log(evt.data);
+
+    if (evt.data.inputFile !== undefined) {
+            console.log("start")
+            this.console.time();
+            // data = d3.csvParse(evt.data.inputFile[0], function (d) {
+            //     var dataD3 = {};
+            //     for (x in d) {
+            //         dataD3[x] = parser(d[x])
+            //     }
+            //     // console.log("asd")
+            //     return dataD3
+            // });
+
+            data=evt.data.inputFile[0].split("\n").map(function(val){
+                return val.split(",").map(function(val2){
+                    return parser(val2)
+                })
+            })
+            this.console.timeEnd();
+            this.console.log(data);
+            self.postMessage({data:data})
+    }
+}
+Module.addOnPostRun(() => {
+    var data = new Float64Array(10);
+
+    for (var i = 0; i < data.length; i++) {
+        data[i] = i;
+    }
+
+    console.log(Module)
+    m = new Module.matrix(data, 5, 2);
+    console.log(m.loc(0, 0))
+    console.log(m.loc(0, 1))
+    console.log(m.loc(0, 2))
+});
+
 fileUploadHandling = async function (event) {
     if (!event.target || !event.target.files) {
         return;
     }
     const fileList = event.target.files;
     try {
-        parseUploadFile(fileList.item(0))
         ListOfPromises = []
         for (var i = 0; i < fileList.length; i++) {
             ListOfPromises.push(parseUploadFile(fileList.item(i)));
@@ -14,40 +57,12 @@ fileUploadHandling = async function (event) {
             //     console.log(d3)
             //     uint8(val);
             // });
-            // g_WebWorker.postMessage({inputFile:values})
+
             window.values = values.map(function (val) {
                 console.log(d3)
                 console.log(Plotly)
                 console.time();
-                d3.select("body").append("div")
-                    .attr("id", "container")
-
-                d3.select("#container").append("div")
-                    .attr("id", "FilterableTable");
-
-                d3.select("#FilterableTable").append("h1")
-                    .attr("id", "title")
-                    .text("My Youtube Channels")
-
-                d3.select("#FilterableTable").append("div")
-                    .attr("class", "SearchBar")
-                    .append("p")
-                    .attr("class", "SearchBar")
-                    .text("Search By Title:");
-
-                d3.select(".SearchBar")
-                    .append("input")
-                    .attr("class", "SearchBar")
-                    .attr("id", "search")
-                    .attr("type", "text")
-                    .attr("placeholder", "Search...");
-
-                var table = d3.select("#FilterableTable").append("table");
-                table.append("thead").append("tr");
-
-                window.data = d3.csvParse(val, function (d) {
-                    table.append("tbody")
-
+                window.data = Plotly.d3.csv.parse(val, function (d) {
                     var dataD3 = {};
                     for (x in d) {
                         dataD3[x] = parser(d[x])
@@ -65,8 +80,7 @@ fileUploadHandling = async function (event) {
     }
 };
 
-parseUploadFile = function (inputFile) {
-    // g_WebWorker.postMessage({inputFile: inputFile});
+function parseUploadFile(inputFile) {
     const FR = new FileReader();
     return new Promise((resolve, reject) => {
         FR.onerror = () => {
