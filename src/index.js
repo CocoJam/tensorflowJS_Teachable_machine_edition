@@ -1,12 +1,59 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Container from './component/container';
-import Dash from "./Dash"
-const title = 'My Minimal React Webpack Babel Setupasdasdf';
+import Dash from "./Dash.js"
+import wasmLoader from "../WASM/WASM/dlib.js";
+import wasm from "../WASM/WASM/dlib.wasm";
 
+const Module = wasmLoader({
+  locateFile(path) {
+    if(path.endsWith('.wasm')) {
+      return wasm;
+    }
+    return path;
+  }
+});
+
+//32 bit hash
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr;
+  if (this.length === 0) return hash;
+  for (i = 0; i < this.length; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+// 64 bit hash
+// String.prototype.hashCode = function() {
+// var i = this.length
+// var hash1 = 5381
+// var hash2 = 52711
+
+// while (i--) {
+//   const char = this.charCodeAt(i)
+//   hash1 = (hash1 * 33) ^ char
+//   hash2 = (hash2 * 33) ^ char
+// }
+
+// return (hash1 >>> 0) * 4096 + (hash2 >>> 0)
+// };
+
+const wasmLoaded = wasmLoader().then(function (wasm) {
+  window.wasm = wasm;
+  var data = new Float64Array(10);
+  for (var i = 0; i < data.length; i++) {
+    data[i] = i;
+  }
+  console.log(data)
+  const m = new window.wasm.matrix(data, data.length/2, data.length/5);
+  console.log(m.veiw())
+  return wasm;
+})
+// console.log(wasm)
 
 ReactDOM.render(
-  <div><Dash/></div>,
+  <div><Dash /></div>,
   document.getElementById('app')
 );
 

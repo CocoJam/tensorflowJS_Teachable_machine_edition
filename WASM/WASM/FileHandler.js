@@ -16,48 +16,10 @@ fileUploadHandling = async function (event) {
             // });
             // g_WebWorker.postMessage({inputFile:values})
             window.values = values.map(function (val) {
-                console.log(d3)
-                console.log(Plotly)
                 console.time();
-                d3.select("body").append("div")
-                    .attr("id", "container")
-
-                d3.select("#container").append("div")
-                    .attr("id", "FilterableTable");
-
-                d3.select("#FilterableTable").append("h1")
-                    .attr("id", "title")
-                    .text("My Youtube Channels")
-
-                d3.select("#FilterableTable").append("div")
-                    .attr("class", "SearchBar")
-                    .append("p")
-                    .attr("class", "SearchBar")
-                    .text("Search By Title:");
-
-                d3.select(".SearchBar")
-                    .append("input")
-                    .attr("class", "SearchBar")
-                    .attr("id", "search")
-                    .attr("type", "text")
-                    .attr("placeholder", "Search...");
-
-                var table = d3.select("#FilterableTable").append("table");
-                table.append("thead").append("tr");
-
-                window.data = d3.csvParse(val, function (d) {
-                    table.append("tbody")
-
-                    var dataD3 = {};
-                    for (x in d) {
-                        dataD3[x] = parser(d[x])
-                    }
-                    return dataD3
-                });
+                uint8(val);
                 // g_WebWorker.postMessage({matrix:window.data});
                 console.timeEnd();
-
-                return { matrix: data };
             })
         });
     } catch (e) {
@@ -78,7 +40,7 @@ parseUploadFile = function (inputFile) {
             resolve(FR.result);
         };
         try {
-            FR.readAsBinaryString(inputFile)
+            FR.readAsArrayBuffer(inputFile)
         }
         catch (e) {
             console.log(e);
@@ -111,9 +73,10 @@ function uint8(val) {
     const uint8_t_ptr = window.Module._malloc(uint8_t_arr.length);
     Module.HEAPU8.set(uint8_t_arr, uint8_t_ptr);
     Module.readFile(uint8_t_ptr, uint8_t_arr.length);
+    console.timeEnd("uint8");
     const returnArr = new Uint8Array(uint8_t_arr.length);
     returnArr.set(window.Module.HEAPU8.subarray(uint8_t_ptr, uint8_t_ptr + uint8_t_arr.length));
     Module._free(uint8_t_ptr);
-    console.timeEnd("uint8");
+   
     return returnArr;
 }

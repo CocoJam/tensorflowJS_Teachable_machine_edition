@@ -6,7 +6,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
@@ -14,11 +13,16 @@ import Badge from '@material-ui/core/Badge';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import { mainListItems, secondaryListItems } from './listItems';
+import MainListItem from './listItems';
 import FileUploadHandler from "./component/fileUploader";
+import wasmLoader from "../WASM/WASM/dlib.js";
 // import SimpleLineChart from './SimpleLineChart';
 // import SimpleTable from './SimpleTable';
-
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import BarChartIcon from '@material-ui/icons/BarChart';
+import VideoCam from "@material-ui/icons/VideoCam";
+import NoteAdd from "@material-ui/icons/NoteAdd"
+import { ListItemText } from '../node_modules/@material-ui/core';
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -94,11 +98,34 @@ const styles = theme => ({
     height: 320,
   },
 });
+function listItemsParser(iconElement, text){
+  return{icon: iconElement, text:text}
+}
+
+const listItems = [listItemsParser(DashboardIcon,"DashBoard"),
+listItemsParser(NoteAdd, "Upload"), 
+listItemsParser(VideoCam, "Video Input"),
+ listItemsParser(BarChartIcon, "Bar charts")]
 
 class Dashboard extends React.Component {
-  state = {
-    open: true,
-  };
+  constructor(props) {
+    super(props);
+    this.state = { open: true, wasm: null };
+    console.log (listItems)
+  }
+  // state = {
+  //   open: true,
+  // };
+
+  wasmLoading() {
+    const wasm = wasmLoader().then(function (dlib) {
+      console.log("loading")
+      console.log(dlib)
+      this.setState({ ... this.state, wasm: dlib })
+      return dlib;
+    })
+    this.setState({ ...this.state, wasm: wasm })
+  }
 
   handleDrawerOpen = () => {
     this.setState({ open: true });
@@ -110,7 +137,9 @@ class Dashboard extends React.Component {
 
   render() {
     const { classes } = this.props;
-
+    // if (this.state.wasm === null) {
+    //   this.wasmLoading();
+    // }
     return (
       <React.Fragment>
         <CssBaseline />
@@ -154,16 +183,16 @@ class Dashboard extends React.Component {
               </IconButton>
             </div>
             <Divider />
-            <List>{mainListItems}</List>
+            <MainListItem listItem={listItems} />
             <Divider />
-            <List>{secondaryListItems}</List>
+            {/* <List>{secondaryListItems}</List> */}
           </Drawer>
           <main className={classes.content}>
             <div className={classes.appBarSpacer} />
             <Typography variant="display1" gutterBottom>
               Orders
             </Typography>
-           
+
             <Typography component="div" className={classes.chartContainer}>
               {/* <SimpleLineChart /> */}
             </Typography>
@@ -171,7 +200,7 @@ class Dashboard extends React.Component {
               Products
             </Typography>
             <div className={classes.tableContainer}>
-            <FileUploadHandler/>
+              <FileUploadHandler />
             </div>
           </main>
         </div>
@@ -180,8 +209,8 @@ class Dashboard extends React.Component {
   }
 }
 
-Dashboard.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
+// Dashboard.propTypes = {
+//   classes: PropTypes.object.isRequired,
+// };
 
 export default withStyles(styles)(Dashboard);

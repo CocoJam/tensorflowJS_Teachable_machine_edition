@@ -93,7 +93,23 @@
         "xlocmes": "cpp",
         "*.ipp": "cpp",
         "xcomplex": "cpp",
-        "xxatomic": "cpp"
+        "xxatomic": "cpp",
+        "any": "cpp",
+        "shared_mutex": "cpp",
+        "core": "cpp",
+        "superlusupport": "cpp",
+        "adolcforward": "cpp",
+        "alignedvector3": "cpp",
+        "autodiff": "cpp",
+        "bvh": "cpp",
+        "eulerangles": "cpp",
+        "fft": "cpp",
+        "kroneckerproduct": "cpp",
+        "mprealsupport": "cpp",
+        "numericaldiff": "cpp",
+        "openglsupport": "cpp",
+        "specialfunctions": "cpp",
+        "splines": "cpp"
     },
     "git.ignoreLimitWarning": true
 }

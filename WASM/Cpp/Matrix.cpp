@@ -28,7 +28,7 @@ class matrix
     }
 
     matrix(const emscripten::val &vec, int row, int col)
-    {
+    {   
         this->mat = emscripten_val_to_mat(vec, row, col);
     }
     matrix(int row, int col)
@@ -320,6 +320,7 @@ Em_matrix::matrix<T> diag()
             for (int colNum = 0; colNum < col; colNum++)
             {
                 matrix_instance(rowNum, colNum) = vec.at(rowNum * col + colNum);
+
             }
         }
         return matrix_instance;
@@ -329,10 +330,14 @@ Em_matrix::matrix<T> diag()
         unsigned int length = arr["length"].as<unsigned int>();
         std::vector<T> vec(length);
         emscripten::val memory = emscripten::val::module_property("buffer");
+        print("memory buffer")
         emscripten::val memoryView = emscripten::val::global("Float64Array").new_(memory, reinterpret_cast<std::uintptr_t>(vec.data()), length);
         memoryView.call<void>("set", arr);
+        print("memory setted")
         return vec;
     }
+
+    
 
     void set_mat(dlib::matrix<T> mat)
     {
@@ -347,7 +352,6 @@ Em_matrix::matrix<T> diag()
         {
             if (size_check(*m1))
             {
-                print(this->mat);
                 rm = oper(this->mat, (*m1).get_mat());
                 goto endoperation;
             }
@@ -358,7 +362,6 @@ Em_matrix::matrix<T> diag()
             if (std::is_same_v<K, T>)
             {
                 print("scalar Matrix");
-                // rm = oper(this->mat, (*m1));
                 goto endoperation;
             }
             else

@@ -2,28 +2,21 @@
 #include <emscripten/bind.h>
 #include <iostream>
 
+#include <Eigen/Dense>
+// em++ -std=c++17 --bind -L lib/dlib/build/dlib/libdlib.so -I lib/dlib boot.cpp  -L lib/eigen/libeigen_blas.so -I lib/eigen -o ../WASM/boot.html -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s WASM=1 -s ALLOW_MEMORY_GROWTH=1
 
-// em++ -std=c++17 --bind boot.cpp -o ../WASM/boot.js -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s WASM=1 -s ALLOW_MEMORY_GROWTH=1
 
-namespace e = emscripten;
-
-int counter = 0;
-
-void cback(char* data, int size, void* arg) {
-    std::cout << "Callback" << std::endl;
-    counter++;
-}
-
-void loop() {
-    std::cout << "Counter: " << counter << std::endl;
-}
-
-int main() {
-    std::cout << "Main func." << std::endl;
-    worker_handle worker = emscripten_create_worker("worker.js");
-    emscripten_call_worker(worker, "one", 0, 0, cback, (void*)42);
-
-    emscripten_set_main_loop(loop, 2, true);
-
-    return 0;
+using namespace Eigen;
+int main()
+{
+  MatrixXd m(2,2);
+  m(0,0) = 3;
+  m(1,0) = 2.5;
+  m(0,1) = -1;
+  m(1,1) = m(1,0) + m(0,1);
+  std::cout << "Here is the matrix m:\n" << m << std::endl;
+  VectorXd v(2);
+  v(0) = 4;
+  v(1) = v(0) - 1;
+  std::cout << "Here is the vector v:\n" << v << std::endl;
 }

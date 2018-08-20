@@ -1,0 +1,1 @@
+C:\Users\james\emsdk\emscripten\1.38.10\emar.bat rc libeigen_lapack_static.a  @CMakeFiles\eigen_lapack_static.dir\objects1.rsp

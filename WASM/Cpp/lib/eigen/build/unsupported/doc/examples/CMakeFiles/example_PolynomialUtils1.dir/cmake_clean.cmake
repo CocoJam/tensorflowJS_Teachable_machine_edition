@@ -1,0 +1,11 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/example_PolynomialUtils1.dir/PolynomialUtils1.cpp.o"
+  "example_PolynomialUtils1.pdb"
+  "example_PolynomialUtils1.js"
+  "example_PolynomialUtils1.js.manifest"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/example_PolynomialUtils1.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()
