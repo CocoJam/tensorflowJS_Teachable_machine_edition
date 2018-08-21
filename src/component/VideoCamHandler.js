@@ -26,13 +26,11 @@ class VideoCam extends React.Component {
             navigator.msGetUserMedia;
         if (!navigator.getUserMedia) { return false; }
         const ctx = this.refs.canvas.getContext('2d');
-        ctx.fillRect(0, 0, 100, 100);
+        ctx.fillRect(0, 0, this.refs.canvas.height, this.refs.canvas.width);
         const video = document.createElement("video");
         video.setAttribute("autoplay", true);
-        video.setAttribute("playsinline")
-        console.log(video)
         var track;
-        this.setState({ ...this.state, height: this.refs.canvas.height, width:this.refs.canvas.width,video: video, ctx: ctx, track: track });
+        this.setState({ ...this.state, height: this.refs.canvas.height, width: this.refs.canvas.width, video: video, ctx: ctx, track: track });
         console.log(this.state.video);
         this.getWebcam(this.state.video, this.state.track);
         this.startAnimationLoop();
@@ -41,7 +39,7 @@ class VideoCam extends React.Component {
     getWebcam = (video, track) => {
         return navigator.getUserMedia({ video: true, audio: false }, function (stream) {
             video.src = window.URL.createObjectURL(stream);
-            track = stream.getTracks()[0];
+            // track = stream.getTracks()[0];
         }, function (e) {
             console.error('Rejected!', e);
         });
@@ -49,18 +47,23 @@ class VideoCam extends React.Component {
 
     animationLoop() {
         var loopFrame = requestAnimationFrame(this.animationLoop.bind(this));
-        this.state.ctx.globalAlpha = 0.1;
+        // this.state.ctx.globalAlpha = 0.1;
         this.state.ctx.drawImage(this.state.video, 0, 0, this.state.height, this.state.width);
+        this.state.ctx.restore();
     }
 
     startAnimationLoop() {
+        // setInterval(this.animationLoop.bind(this), 1000);
         var loopFrame = loopFrame || requestAnimationFrame(this.animationLoop.bind(this));
     }
 
     render() {
         console.log("re-rendering")
         return (
-            <canvas ref="canvas" width={300} height={300} />
+            <div>
+                {/* <video ref="video" playsinline autoPlay/> */}
+                <canvas ref="canvas" width={this.props.width} height={this.props.height} />
+            </div>
         )
     }
 

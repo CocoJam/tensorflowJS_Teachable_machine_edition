@@ -188,7 +188,7 @@ class Dashboard extends React.Component {
               Products
             </Typography>
             <div className={classes.tableContainer}>
-              <VideoCamHandler />
+              <VideoCamHandler height={800} width={800} />
             </div>
           </main>
         </div>
