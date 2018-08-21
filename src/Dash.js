@@ -14,7 +14,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MainListItem from './listItems';
-import FileUploadHandler from "./component/fileUploader";
+import FileUploadHandler from "./component/FileHandler";
+import VideoCamHandler from "./component/VideoCamHandler";
 import wasmLoader from "../WASM/WASM/dlib.js";
 // import SimpleLineChart from './SimpleLineChart';
 // import SimpleTable from './SimpleTable';
@@ -113,19 +114,6 @@ class Dashboard extends React.Component {
     this.state = { open: true, wasm: null };
     console.log (listItems)
   }
-  // state = {
-  //   open: true,
-  // };
-
-  wasmLoading() {
-    const wasm = wasmLoader().then(function (dlib) {
-      console.log("loading")
-      console.log(dlib)
-      this.setState({ ... this.state, wasm: dlib })
-      return dlib;
-    })
-    this.setState({ ...this.state, wasm: wasm })
-  }
 
   handleDrawerOpen = () => {
     this.setState({ open: true });
@@ -200,7 +188,7 @@ class Dashboard extends React.Component {
               Products
             </Typography>
             <div className={classes.tableContainer}>
-              <FileUploadHandler />
+              <VideoCamHandler />
             </div>
           </main>
         </div>
