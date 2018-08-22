@@ -1,13 +1,12 @@
 import React from 'react';
 import * as tf from "@tensorflow/tfjs";
-import { tensorflowMobileNet,tensorflowMobileMobilenet_v1_1_0_224_transferLearning, tensorflowMobileNet_v_1_0_25_transferLearning, TansferkerasModelGenerator } from "./NetWorks/InternalMobileNet";
+import { tensorflowMobileNet, tensorflowMobileNet_v_1_0_25_transferLearning, TansferkerasModelGenerator, CNNkerasModelGenerator } from "./NetWorks/InternalMobileNet";
 import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
 import GestureCard from "./Gesture/GestureCard";
 import AndroidIcon from '@material-ui/icons/Android';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import PeopleIcon from '@material-ui/icons/People';
-import { ceil } from '@tensorflow/tfjs';
 
 
 class VideoCam extends React.Component {
@@ -26,7 +25,7 @@ class VideoCam extends React.Component {
     constructor(props) {
         super(props);
         this.state = { model: null, VideoComponent: <div />, images: [], labels: [], labelButtons: [], trainButton: null, predictionButton: null, stopButton: null, trainedModel: null, predict: false }
-        tensorflowMobileMobilenet_v1_1_0_224_transferLearning().then((Net) => {
+        tensorflowMobileNet_v_1_0_25_transferLearning().then((Net) => {
 
             console.log(Net);
             console.log(Net.feedInputShapes[0][1])
@@ -84,6 +83,7 @@ class VideoCam extends React.Component {
             const batchedImage = resizedImage.expandDims(0);
             // console.timeEnd("pix")
             return batchedImage.toFloat().div(tf.scalar(127)).sub(tf.scalar(1));
+            // return batchedImage;
         });
     }
 
@@ -110,17 +110,17 @@ class VideoCam extends React.Component {
     predictCurrent(label) {
         console.log("cap")
         if (this.state.model !== null) {
-            // this.state.images.push(this.capture());
-            const result = tf.tidy(() => {
-                console.log("retraining??")
-                const cap = this.capture();
-                console.log(cap.shape);
-                console.log(this.state.model);
-                var re = this.state.model.predict(cap);
-                console.log("re ")
-                return re
-            })
-            this.state.images.push(result);
+            this.state.images.push(this.capture());
+            // const result = tf.tidy(() => {
+            //     console.log("retraining??")
+            //     const cap = this.capture();
+            //     console.log(cap.shape);
+            //     console.log(this.state.model);
+            //     var re = this.state.model.predict(cap);
+            //     console.log("re ")
+            //     return re
+            // })
+            // this.state.images.push(result);
             this.state.labels.push(label)
             const classNum = (new Set(this.state.labels)).size;
             if (classNum >= 2 && this.state.trainedModel === null && this.state.trainButton === null) {
@@ -173,7 +173,7 @@ class VideoCam extends React.Component {
             const classNum = (new Set(this.state.labels)).size;
             const oneHot = tf.tidy(() => tf.oneHot(tf.tensor1d(this.state.labels).toInt(), classNum));
 
-            const model = TansferkerasModelGenerator(this.state.model.outputShape, [50], 0.0001, classNum, "softmax")
+            const model = CNNkerasModelGenerator([this.state.video.height,this.state.video.width,3], [50], 0.0001, classNum, "softmax")
             const imageInput = tf.concat2d(this.state.images);
             console.log(imageInput.shape[0])
             var batchSize =  Math.floor(imageInput.shape[0] * 0.4);
@@ -192,7 +192,7 @@ class VideoCam extends React.Component {
                 callbacks: {
                     onBatchEnd: async (batch, logs) => {
                         console.log(logs.loss.toFixed(5))
-                        await tf.nextFrame();
+                        // await tf.nextFrame();
                     }
                 }
             });
@@ -213,12 +213,7 @@ class VideoCam extends React.Component {
             const predictedClass = tf.tidy(() => {
                 console.time("cap")
                 const img = this.capture();
-                console.timeEnd("cap")
-                console.time("mob")
-                const activation = this.state.model.predict(img);
-                console.timeEnd("mob")
-                console.time("transfer")
-                const predictions = this.state.trainedModel.predict(activation);
+                const predictions = this.state.trainedModel.predict(img);
                 return  predictions.as1D().argMax();;
             });
 

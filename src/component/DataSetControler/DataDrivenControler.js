@@ -23,8 +23,11 @@ class Controller{
           oldY.dispose();
           y.dispose();
         }
-        console.log(this.ys.shape)
-        this.xs.print();
+        // console.log(this.ys.shape)
+        // console.log(this.xs.shape)
+        window.xs = this.xs
+        window.ys = this.ys
+        // this.xs[this.xs.shape[0]].print();
       }
 }
 

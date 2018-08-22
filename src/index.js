@@ -52,83 +52,83 @@ String.prototype.hashCode = function () {
 //   return wasm;
 // })
 
-const MOBILENET_MODEL_PATH =
-  'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json';
-const NetLoader = async () => {
-  return await tf.loadModel(MOBILENET_MODEL_PATH);
-}
+// const MOBILENET_MODEL_PATH =
+//   'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json';
+// const NetLoader = async () => {
+//   return await tf.loadModel(MOBILENET_MODEL_PATH);
+// }
 
-var catEl = new Promise((resolve, reject) => {
-  let image = new Image();
-  image.onload = () => resolve(image);
-  image.onerror = reject;
-  image.crossOrigin = "anonymous";
-  image.src = 'https://raw.githubusercontent.com/tensorflow/tfjs-examples/master/mobilenet/cat.jpg';
-  image.width = 227;
-  image.height = 227;
-})
-catEl.then((val) => {
-  console.log(val)
-  document.body.appendChild(val);
-  const catImg = tf.fromPixels(val);
-  console.log("cat")
-  console.log(catImg);
-  const topK = 5;
-  // var mobilenet = NetLoader();
-  mobilenet.load().then((Net)=>{
-    console.log(Net)
-    // predict(Net, val);
-    const topK = 5;
-    const result = Net.infer(catImg, 'conv_preds').flatten();
-    console.log(result);
-    const logits2d = result.div(result.norm()).expandDims(0);
-    const dataset = {};
-    dataset[1] = tf.keep(logits2d);
-    console.log(dataset)
-    // const text = predictions.then(prediction =>console.log(prediction));
-  })
-  // console.log(mobilenet)
-  // .then((Net) => {
-  //   console.log(Net)
-  //   Net.predict(tf.zeros([1, val.height, val.width, 3])).dispose();
-  //   Net.classify(catImg, topK).then((val2) => {
-  //     const text = val2.map(prediction => {
-  //       console.log(prediction.probability.toFixed(3) + ': ' + prediction.className)
-  //     })
-  //   })
-  // })
-})
+// var catEl = new Promise((resolve, reject) => {
+//   let image = new Image();
+//   image.onload = () => resolve(image);
+//   image.onerror = reject;
+//   image.crossOrigin = "anonymous";
+//   image.src = 'https://raw.githubusercontent.com/tensorflow/tfjs-examples/master/mobilenet/cat.jpg';
+//   image.width = 227;
+//   image.height = 227;
+// })
+// catEl.then((val) => {
+//   console.log(val)
+//   document.body.appendChild(val);
+//   const catImg = tf.fromPixels(val);
+//   console.log("cat")
+//   console.log(catImg);
+//   const topK = 5;
+//   // var mobilenet = NetLoader();
+//   mobilenet.load().then((Net)=>{
+//     console.log(Net)
+//     // predict(Net, val);
+//     const topK = 5;
+//     const result = Net.infer(catImg, 'conv_preds').flatten();
+//     console.log(result);
+//     const logits2d = result.div(result.norm()).expandDims(0);
+//     const dataset = {};
+//     dataset[1] = tf.keep(logits2d);
+//     console.log(dataset)
+//     // const text = predictions.then(prediction =>console.log(prediction));
+//   })
+//   // console.log(mobilenet)
+//   // .then((Net) => {
+//   //   console.log(Net)
+//   //   Net.predict(tf.zeros([1, val.height, val.width, 3])).dispose();
+//   //   Net.classify(catImg, topK).then((val2) => {
+//   //     const text = val2.map(prediction => {
+//   //       console.log(prediction.probability.toFixed(3) + ': ' + prediction.className)
+//   //     })
+//   //   })
+//   // })
+// })
 
-async function predict(net , imgElement) {
-  // status('Predicting...');
+// async function predict(net , imgElement) {
+//   // status('Predicting...');
 
-  const startTime = performance.now();
-  const logits = tf.tidy(() => {
-    // tf.fromPixels() returns a Tensor from an image element.
-    const img = tf.fromPixels(imgElement).toFloat();
+//   const startTime = performance.now();
+//   const logits = tf.tidy(() => {
+//     // tf.fromPixels() returns a Tensor from an image element.
+//     const img = tf.fromPixels(imgElement).toFloat();
 
-    const offset = tf.scalar(127.5);
-    // Normalize the image from [0, 255] to [-1, 1].
-    const normalized = img.sub(offset).div(offset);
+//     const offset = tf.scalar(127.5);
+//     // Normalize the image from [0, 255] to [-1, 1].
+//     const normalized = img.sub(offset).div(offset);
 
-    // Reshape to a single-element batch so we can pass it to predict.
-    const batched = normalized.reshape([1, imgElement.height, imgElement.width, 3]);
+//     // Reshape to a single-element batch so we can pass it to predict.
+//     const batched = normalized.reshape([1, imgElement.height, imgElement.width, 3]);
 
-    // Make a prediction through mobilenet.
-    console.log("prediction")
-    pre = net.predict(batched);
-    console.log(pre)
-    return pre;
-  });
+//     // Make a prediction through mobilenet.
+//     console.log("prediction")
+//     pre = net.predict(batched);
+//     console.log(pre)
+//     return pre;
+//   });
 
-  // Convert logits to probabilities and class names.
-  const classes = await getTopKClasses(logits, TOPK_PREDICTIONS);
-  const totalTime = performance.now() - startTime;
-  status(`Done in ${Math.floor(totalTime)}ms`);
+//   // Convert logits to probabilities and class names.
+//   const classes = await getTopKClasses(logits, TOPK_PREDICTIONS);
+//   const totalTime = performance.now() - startTime;
+//   status(`Done in ${Math.floor(totalTime)}ms`);
 
-  // Show the classes in the DOM.
-  showResults(imgElement, classes);
-}
+//   // Show the classes in the DOM.
+//   showResults(imgElement, classes);
+// }
 
 
 ReactDOM.render(

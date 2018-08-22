@@ -28,12 +28,12 @@ class AssignLabel extends React.Component {
     // };
 
     clickHandle = (event) => {
-        if (!this.state.sampling) {
-            this.setState({ sampling: true })
+        // if (!this.state.sampling) {
+        //     this.setState({ sampling: true })
             event();
-        } else {
-            this.setState({ sampling: false })
-        }
+        // } else {
+            // this.setState({ sampling: false })
+        // }
     }
 
     mouseDown = (event) => {
