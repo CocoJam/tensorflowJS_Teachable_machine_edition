@@ -17,13 +17,14 @@ import MainListItem from './listItems';
 import FileUploadHandler from "./component/FileHandler";
 import VideoCamHandler from "./component/VideoCamHandler";
 import wasmLoader from "../WASM/WASM/dlib.js";
-// import SimpleLineChart from './SimpleLineChart';
-// import SimpleTable from './SimpleTable';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import VideoCam from "@material-ui/icons/VideoCam";
 import NoteAdd from "@material-ui/icons/NoteAdd"
 import { ListItemText } from '../node_modules/@material-ui/core';
+import AssignLabel from "./component/Gesture/AssignLabel"
+
+
 const drawerWidth = 240;
 
 const styles = theme => ({

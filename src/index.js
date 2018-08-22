@@ -79,8 +79,13 @@ catEl.then((val) => {
     console.log(Net)
     // predict(Net, val);
     const topK = 5;
-    const predictions = Net.classify(catImg, topK);
-    const text = predictions.then(prediction =>console.log(prediction));
+    const result = Net.infer(catImg, 'conv_preds').flatten();
+    console.log(result);
+    const logits2d = result.div(result.norm()).expandDims(0);
+    const dataset = {};
+    dataset[1] = tf.keep(logits2d);
+    console.log(dataset)
+    // const text = predictions.then(prediction =>console.log(prediction));
   })
   // console.log(mobilenet)
   // .then((Net) => {
