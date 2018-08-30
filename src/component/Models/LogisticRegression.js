@@ -3,11 +3,12 @@ import Panel from "../ExpandPanel/ExpandPanel"
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/lab/Slider';
 import Button from '@material-ui/core/Button';
+import ToggleButton, { ToggleButtonGroup } from '@material-ui/lab/ToggleButton'
 class LogisticRegression extends React.Component {
     constructor(props) {
         super(props)
         console.log(this.props);
-        const slider =this.state = { title: "Logistic Regression", learningRate: 50, iteration: 1, content: slider }
+        this.state = { alignment: 'left', title: "Logistic Regression", learningRate: 50, iteration: 1, labels: this.props.labels }
     }
 
     handleChangeValue = (event, value) => {
@@ -23,9 +24,10 @@ class LogisticRegression extends React.Component {
         this.setState({ ...this.state, iteration: value });
     };
 
+    handleAlignment = alignment => this.setState({ alignment });
+
     handleTrain = (event, value) => {
         console.log("train")
-
     };
 
     render() {
@@ -39,6 +41,15 @@ class LogisticRegression extends React.Component {
                     <Typography id="label">Number of Iteration: {this.state.iteration}</Typography>
                     <Slider min={1} max={100} step={1} value={this.state.iteration} aria-labelledby="label" onChange={this.handleChangeIteration} />
                 </div>
+
+                <ToggleButtonGroup value={this.state.alignment} exclusive onChange={this.handleAlignment}>
+                    {this.state.labels.map(labels => {
+                        return <ToggleButton value={Object.keys(labels)[0]} key={Object.keys(labels)[0]}>
+                            {Object.keys(labels)[0]}
+                        </ToggleButton>
+                    })}
+                </ToggleButtonGroup>
+
                 <Button variant="contained" color="secondary" onClick={this.handleTrain}>
                     Train
                 </Button>

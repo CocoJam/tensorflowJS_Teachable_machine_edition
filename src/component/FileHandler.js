@@ -8,6 +8,11 @@ import FileWorker from './workers/file.worker.js';
 import ReactDOM from 'react-dom';
 import cvworker from "../index";
 import ModelContainer from "./Models/ModelContainer"
+
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+
 window.numjs = numjs;
 class FileUploadHandling extends React.Component {
     constructor(props) {
@@ -16,7 +21,8 @@ class FileUploadHandling extends React.Component {
             uploadedFileContents: null,
             waitingForFileUpload: false,
             fileContent: null,
-            charts: []
+            charts: [],
+            Chartrender: true
         };
     }
 
@@ -42,21 +48,20 @@ class FileUploadHandling extends React.Component {
         const w = new FileWorker();
         const fileList = event.target.files;
         const latestUploadedFile = fileList.item(fileList.length - 1);
-        w.onmessage = (event) => {
+        cvworker.onmessage = (event) => {
             const data = event.data.data;
-            cvworker.postMessage(data)
             window.data = data;
             var cfdata = cf.default(data.data);
             window.cx = cfdata;
-            const Models = <ModelContainer head={data.head}/>
-            const chart = <ChartContainer data={data.data} cxt={cfdata} types={data.head} height={600} width={600} />
-            this.setState({ ...this.state, charts: chart, headType: data.headType, fileContent: data.data })
+            const Models = <ModelContainer head={data.head} cxt={cfdata} />
+            if (this.state.Chartrender) {
+                const chart = <ChartContainer data={data.data} cxt={cfdata} types={data.head} height={600} width={600} />
+                this.setState({ ...this.state, charts: chart, model: Models, headType: data.headType, fileContent: data.data })
+            }else{
+                this.setState({ ...this.state, model: Models, headType: data.headType, fileContent: data.data })
+            }
         }
-        cvworker.onmessage = (event) => {
-            console.log(event)
-        }
-
-        w.postMessage({ file: latestUploadedFile });
+        cvworker.postMessage({ file: latestUploadedFile });
         // w.postMessage({cv :window.cv});
         //     const jsMatrix = numjs.float64(flattened).reshape(data.length, Object.keys(data[0]).length)
         //     // const eigen = this.float32(flattened, data.length, Object.keys(data[0]).length);
@@ -214,6 +219,11 @@ class FileUploadHandling extends React.Component {
         svm.delete();
     }
 
+
+    handleRender = name => event => {
+        this.setState({ ...this.state, [name]: event.target.checked });
+    };
+
     render() {
         return (
             <div>
@@ -221,7 +231,17 @@ class FileUploadHandling extends React.Component {
                 {this.state.charts}
                 {<Button onClick={this.handleTitleClick.bind(this)}>LR</Button>}
                 {<Button onClick={this.handleTitleClick2.bind(this)}>svm</Button>}
-                
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={this.state.Chartrender}
+                            onChange={this.handleRender('Chartrender')}
+                            value="Chartrender"
+                        />
+                    }
+                    label="Chart rendering"
+                />
+                {this.state.model}
             </div>
         );
     }
