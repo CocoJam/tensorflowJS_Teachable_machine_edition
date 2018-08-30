@@ -11,22 +11,6 @@ class AssignLabel extends React.Component {
         // this.addEventListener("onMouseDown", this.mouseDown)
     }
 
-    // componentDidMount() {
-
-    //     this.nv.addEventListener("nv-enter", this.handleNvEnter);
-    //     this.addEventListener("onMouseDown", this.mouseDown)
-    // }
-
-    // componentWillUnmount() {
-    //     // Make sure to remove the DOM listener when the component is unmounted.
-    //     this.nv.removeEventListener("nv-enter", this.handleNvEnter);
-    //     this.removeEventListener("onMouseDown", this.mouseDown)
-    // }
-
-    // handleNvEnter = (event) => {
-    //     console.log("Nv Enter:", event);
-    // };
-
     clickHandle = (event) => {
         // if (!this.state.sampling) {
         //     this.setState({ sampling: true })

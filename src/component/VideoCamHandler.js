@@ -47,8 +47,10 @@ class VideoCam extends React.Component {
         ctx.fillRect(0, 0, this.refs.canvas.height, this.refs.canvas.width);
         const video = document.createElement("video");
         video.setAttribute("autoplay", true);
-        video.setAttribute("height", this.state.model.feedInputShapes[0][1])
-        video.setAttribute("width", this.state.model.feedInputShapes[0][2])
+        // video.setAttribute("height", this.state.model.feedInputShapes[0][1])
+        // video.setAttribute("width", this.state.model.feedInputShapes[0][2])
+        video.setAttribute("height", this.refs.canvas.height)
+        video.setAttribute("width", this.refs.canvas.width)
         this.setState({ ...this.state, height: this.refs.canvas.height, width: this.refs.canvas.width, video: video, ctx: ctx });
         this.getWebcam(this.state.video);
         this.startAnimationLoop();
@@ -173,7 +175,7 @@ class VideoCam extends React.Component {
             const classNum = (new Set(this.state.labels)).size;
             const oneHot = tf.tidy(() => tf.oneHot(tf.tensor1d(this.state.labels).toInt(), classNum));
 
-            const model = TansferkerasModelGenerator(this.state.model.outputShape, [50], 0.0001, classNum, "softmax")
+            const model = TansferkerasModelGenerator(this.state.model.outputShape, [100,50], 0.0001, classNum, "softmax")
             const imageInput = tf.concat2d(this.state.images);
             console.log(imageInput.shape[0])
             var batchSize =  Math.floor(imageInput.shape[0] * 0.4);
@@ -181,7 +183,7 @@ class VideoCam extends React.Component {
             if(batchSize < 2){
                 batchSize = imageInput.shape[0]
             }
-            const epochs = 20;
+            const epochs = 50;
             console.time("training")
             // console.log(oneHot);
 

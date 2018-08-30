@@ -24,7 +24,6 @@ import NoteAdd from "@material-ui/icons/NoteAdd"
 import { ListItemText } from '../node_modules/@material-ui/core';
 import AssignLabel from "./component/Gesture/AssignLabel"
 
-
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -189,7 +188,8 @@ class Dashboard extends React.Component {
               Products
             </Typography>
             <div className={classes.tableContainer}>
-              <VideoCamHandler height={500} width={500} />
+            <FileUploadHandler/>
+              {/* <VideoCamHandler height={500} width={500} /> */}
             </div>
           </main>
         </div>
