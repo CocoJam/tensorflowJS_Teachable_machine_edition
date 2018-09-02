@@ -1,8 +1,9 @@
+var Module;
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
         define(function () {
-            return (this.cv = factory());
+            return (window.cv = factory());
         });
     } else if (typeof module === 'object' && module.exports) {
         // Node. Does not work with strict CommonJS, but
@@ -25,6 +26,6 @@ var Module;if(typeof Module==="undefined")Module={};if(!Module.expectedDataFileD
 
   return cv;
 };
-    var Module ={}
+
     return cv(Module);
 }));

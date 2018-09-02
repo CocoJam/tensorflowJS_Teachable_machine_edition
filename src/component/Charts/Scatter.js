@@ -13,7 +13,7 @@ class Scatter extends React.Component {
     constructor(props) {
         super(props);
         var data = this.parser(this.props.cxt, this.props.type);
-        console.log(data);
+        // console.log(data);
         data = {
             datasets: [{
                 label: "Data",
@@ -49,7 +49,7 @@ class Scatter extends React.Component {
     }
 
     parser(cxt, type) {
-        console.log(type)
+        // console.log(type)
         const parsedData = cxt.allFiltered().map(val => { return { x: val[type[0]], y: val[type[1]] } })
         return parsedData;
     }
@@ -67,12 +67,11 @@ class Scatter extends React.Component {
     }
 
     clickHandler(event) {
-        console.log(event);
+        // console.log(event);
     }
 
 
     render() {
-        console.log("pie-rendering")
         return (
             <ChartTemplate cxt={this.state.cxt} type='scatter' data={this.state.data} options={this.state.options} />
         );

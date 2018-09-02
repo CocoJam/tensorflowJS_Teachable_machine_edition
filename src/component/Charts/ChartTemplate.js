@@ -1,10 +1,5 @@
 import React from 'react';
-// import * as d3 from "d3";
-import * as cf from "crossfilter";
-// import createPlotlyComponent from 'react-plotlyjs';
-import Plotly from 'plotly.js-basic-dist';
-// import * as dc from 'react-chartjs-2';
-import * as chartjs from "chart.js";
+
 
 class ChartTemplate extends React.Component {
 
@@ -15,7 +10,7 @@ class ChartTemplate extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log(props)
+        // console.log(props)
         this.props.cxt.onChange(eventType => this.update());
         this.state = { data: this.props.data, cxt: this.props.cxt , dimension:this.props.dimension }
     }
@@ -30,14 +25,14 @@ class ChartTemplate extends React.Component {
     }
 
     update() {
-        console.log("Chart update")
+        // console.log("Chart update")
         this.state.chart.update();
     }
 
     clickHandler(event) {
         const chart = this.state.chart
         var activePoints = chart.getElementAtEvent(event);
-        console.log(activePoints)
+        // console.log(activePoints)
         if (activePoints.length > 0) {
             var clickedElementindex = activePoints[0]["_index"];
             console.log(clickedElementindex)

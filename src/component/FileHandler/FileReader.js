@@ -29,7 +29,7 @@ export function fileContentParse(fileContents) {
                     dataD3[x] = parseInt(val) / 100;
                     if (headType.length !== Object.keys(d).length) {
                         const json = {};
-                        json[x] = "intPercentage"
+                        json[x] = dataType.intPercentage
                         headType.push(json)
                     }
                 }
@@ -37,7 +37,7 @@ export function fileContentParse(fileContents) {
                     dataD3[x] = parseInt(val)
                     if (headType.length !== Object.keys(d).length) {
                         const json = {};
-                        json[x] = "int"
+                        json[x] = dataType.int
                         headType.push(json)
                     }
                 }
@@ -47,7 +47,7 @@ export function fileContentParse(fileContents) {
                     dataD3[x] = parseFloat(val) / 100;
                     if (headType.length !== Object.keys(d).length) {
                         const json = {};
-                        json[x] = "floatPercentage"
+                        json[x] = dataType.floatPercentage
                         headType.push(json)
                     }
                 }
@@ -55,7 +55,7 @@ export function fileContentParse(fileContents) {
                     dataD3[x] = parseFloat(val)
                     if (headType.length !== Object.keys(d).length) {
                         const json = {};
-                        json[x] = "float"
+                        json[x] = dataType.float
                         headType.push(json)
                     }
                 }
@@ -64,7 +64,7 @@ export function fileContentParse(fileContents) {
                 dataD3[x] = val
                 if (headType.length !== Object.keys(d).length) {
                     const json = {};
-                    json[x] = "time"
+                    json[x] = dataType.time
                     headType.push(json)
                 }
             }
@@ -72,7 +72,7 @@ export function fileContentParse(fileContents) {
                 dataD3[x] = val
                 if (headType.length !== Object.keys(d).length) {
                     const json = {};
-                    json[x] = "date"
+                    json[x] = dataType.date
                     headType.push(json)
                 }
             }
@@ -80,7 +80,7 @@ export function fileContentParse(fileContents) {
                 dataD3[x] = val
                 if (headType.length !== Object.keys(d).length) {
                     const json = {};
-                    json[x] = "string"
+                    json[x] = dataType.string
                     headType.push(json)
                 }
             }
@@ -114,7 +114,7 @@ export function flattenedNum(data) {
     // var flattened = [];
     var flattened = data.forEach(function (entry) {
         for (var i in entry) {
-            if (typeof (entry[i]) !== "string") {
+            if (typeof (entry[i]) !== 7) {
                 return entry
             }
         }
@@ -123,10 +123,34 @@ export function flattenedNum(data) {
 }
 
 export function isNumeric(val) {
-    if (Object.values(val)[0] === "string" || Object.values(val)[0] === "time" || Object.values(val)[0] === "date") {
+    if (Object.values(val)[0] > 4) {
         return false;
     }
     else {
         return true
     }
+}
+
+export function labelEncoding(type, cxt) {
+    const dimension = cxt.dimension(function (fact) { return fact[type]; })
+    const group = dimension.group().all();
+    const encoder={};
+    const decoder={};
+    for(var i =0; i < group.length; i++){
+        encoder[group[i].key] = i;
+        decoder[i] = group[i].key;
+    }
+    console.log(encoder);
+    console.log(decoder);
+    return {encoder: encoder, decoder:decoder}
+}
+
+export const dataType = {
+    int: 1,
+    float: 2,
+    intPercentage: 3,
+    floatPercentage: 4,
+    time: 5,
+    date: 6,
+    string: 7,
 }

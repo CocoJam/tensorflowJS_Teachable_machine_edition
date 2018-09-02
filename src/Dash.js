@@ -15,14 +15,12 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MainListItem from './listItems';
 import FileUploadHandler from "./component/FileHandler";
-import VideoCamHandler from "./component/VideoCamHandler";
-import wasmLoader from "../WASM/WASM/dlib.js";
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import VideoCam from "@material-ui/icons/VideoCam";
 import NoteAdd from "@material-ui/icons/NoteAdd"
-import { ListItemText } from '../node_modules/@material-ui/core';
-import AssignLabel from "./component/Gesture/AssignLabel"
+import LinearProgress from '@material-ui/core/LinearProgress';
+import VideoCamHandler from "./component/VideoCamHandler"
 
 const drawerWidth = 240;
 
@@ -99,20 +97,20 @@ const styles = theme => ({
     height: 320,
   },
 });
-function listItemsParser(iconElement, text){
-  return{icon: iconElement, text:text}
+function listItemsParser(iconElement, text) {
+  return { icon: iconElement, text: text }
 }
 
-const listItems = [listItemsParser(DashboardIcon,"DashBoard"),
-listItemsParser(NoteAdd, "Upload"), 
+const listItems = [listItemsParser(DashboardIcon, "DashBoard"),
+listItemsParser(NoteAdd, "Upload"),
 listItemsParser(VideoCam, "Video Input"),
- listItemsParser(BarChartIcon, "Bar charts")]
+listItemsParser(BarChartIcon, "Bar charts")]
 
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { open: true, wasm: null };
-    console.log (listItems)
+    this.state = { open: true, wasm: null, cvReady: false };
+    console.log(listItems)
   }
 
   handleDrawerOpen = () => {
@@ -123,11 +121,24 @@ class Dashboard extends React.Component {
     this.setState({ open: false });
   };
 
+  handleCVEvent = (event) => {
+    console.log(event)
+    this.setState({ ...this.state, cvReady: true })
+  }
+
+  componentDidMount() {
+    window.addEventListener('cv', this.handleCVEvent.bind(this));
+  }
+
   render() {
     const { classes } = this.props;
-    // if (this.state.wasm === null) {
-    //   this.wasmLoading();
-    // }
+    var linearChart = null;
+    if (this.state.cvReady) {
+      linearChart = <LinearProgress color="secondary" variant="buffer" value={100} valueBuffer={10} />
+    }
+    else {
+      linearChart = <LinearProgress color="secondary" />
+    }
     return (
       <React.Fragment>
         <CssBaseline />
@@ -152,11 +163,12 @@ class Dashboard extends React.Component {
                 Dashboard
               </Typography>
               <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
+                {/* <Badge badgeContent={4} color="secondary">
                   <NotificationsIcon />
-                </Badge>
+                </Badge> */}
               </IconButton>
             </Toolbar>
+            {linearChart}
           </AppBar>
           <Drawer
             variant="permanent"
@@ -173,23 +185,15 @@ class Dashboard extends React.Component {
             <Divider />
             <MainListItem listItem={listItems} />
             <Divider />
-            {/* <List>{secondaryListItems}</List> */}
           </Drawer>
           <main className={classes.content}>
             <div className={classes.appBarSpacer} />
-            <Typography variant="display1" gutterBottom>
-              Orders
-            </Typography>
 
             <Typography component="div" className={classes.chartContainer}>
-              {/* <SimpleLineChart /> */}
-            </Typography>
-            <Typography variant="display1" gutterBottom>
-              Products
             </Typography>
             <div className={classes.tableContainer}>
-            <FileUploadHandler/>
-              {/* <VideoCamHandler height={500} width={500} /> */}
+              {/* <FileUploadHandler /> */}
+              <VideoCamHandler height={500} width={500} />
             </div>
           </main>
         </div>
