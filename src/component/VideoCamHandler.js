@@ -7,9 +7,8 @@ import GestureCard from "./Gesture/GestureCard";
 import AndroidIcon from '@material-ui/icons/Android';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import PeopleIcon from '@material-ui/icons/People';
-import { ceil } from '@tensorflow/tfjs';
 
-
+var mediaRecorder = null;
 class VideoCam extends React.Component {
     trainButton = () => <Button variant="fab" color="primary" aria-label="Add" onClick={this.setUpTrain.bind(this)}>
         <AndroidIcon />
@@ -25,12 +24,13 @@ class VideoCam extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { model: null, VideoComponent: <div />, images: [], labels: [], labelButtons: [], trainButton: null, predictionButton: null, stopButton: null, trainedModel: null, predict: false }
+        this.state = {
+            model: null, VideoComponent: <div />,
+            audioChucks: [], images: [], labels: [], labelButtons: [],
+            trainButton: null, predictionButton: null, stopButton: null,
+            trainedModel: null, predict: false
+        }
         tensorflowMobileMobilenet_v1_1_0_224_transferLearning().then((Net) => {
-
-            console.log(Net);
-            console.log(Net.feedInputShapes[0][1])
-            console.log(Net.feedInputShapes[0][2])
             this.setState({ ...this.state, model: Net })
             this.cameraSetUp();
             // tf.tidy(() => Net.predict(this.capture()));
@@ -54,25 +54,40 @@ class VideoCam extends React.Component {
         const ctx = this.refs.canvas.getContext('2d');
         ctx.fillRect(0, 0, this.refs.canvas.height, this.refs.canvas.width);
         const video = document.createElement("video");
-        video.setAttribute("autoplay", true);
         video.setAttribute("height", this.refs.canvas.height)
         video.setAttribute("width", this.refs.canvas.width)
-        video.setAttribute("muted", true)
-        // video.muted = true;
-        const audio = document.createElement("audio");
-        const stream = this.getWebcam(video,audio);
-        // stream.then(val => console.log(val))
-        this.setState({ ...this.state, stream: stream, audio: audio, height: this.refs.canvas.height, width: this.refs.canvas.width, video: video, ctx: ctx });
+        var audioCtx = new AudioContext();
+        this.getWebcam(video, audioCtx);
+        var dest = audioCtx.createMediaStreamDestination();
+        dest.connect(audioCtx.destination);
+        this.setState({ ...this.state, audioMediaStreamDestination: dest, height: this.refs.canvas.height, width: this.refs.canvas.width, video: video, ctx: ctx });
         this.startAnimationLoop();
-
     }
 
-    getWebcam = (video, audio) => {
-        return navigator.getUserMedia({
-            video: true
+    getWebcam = (video, audioCtx) => {
+        navigator.getUserMedia({
+            video: true, audio: {
+                optional: [],
+                mandatory: {
+                    googEchoCancellation: true
+                }
+            }
         }, function (stream) {
             video.src = window.URL.createObjectURL(stream);
-            audio.src = window.URL.createObjectURL(stream);
+            video.onloadedmetadata = function (e) {
+                video.play();
+                video.muted = true;
+            };
+
+            var source = audioCtx.createMediaStreamSource(stream);
+            var biquadFilter = audioCtx.createBiquadFilter();
+            biquadFilter.type = "lowshelf";
+            biquadFilter.frequency.value = 1000;
+
+            source.connect(biquadFilter);
+            biquadFilter.connect(audioCtx.destination);
+
+            // return stream;
         }, function (e) {
             console.error(e);
         });
@@ -142,11 +157,10 @@ class VideoCam extends React.Component {
 
 
     AdditionalLabel() {
-        const label = <GestureCard key={this.state.labelButtons.length} title="Label" actionSet={[]} record={this.predictCurrent.bind(this, this.state.labelButtons.length)} />
+
+        const label = <GestureCard key={this.state.labelButtons.length} title="Label" audioMediaStreamDestination={this.state.audioMediaStreamDestination} actionSet={[]} record={this.predictCurrent.bind(this, this.state.labelButtons.length)} />
         this.state.labelButtons.push(label);
-        // console.log(labelList)
         const classNum = (new Set(this.state.labels)).size;
-        // console.log(this.state.labelButtons.size)
         this.setState({ ...this.state, labelButtons: this.state.labelButtons })
     }
 
@@ -183,10 +197,6 @@ class VideoCam extends React.Component {
                 batchSize = imageInput.shape[0]
             }
             const epochs = 50;
-            console.time("training")
-            // console.log(oneHot);
-
-            // await model.fit(results, oneHot, {
             await model.fit(imageInput, oneHot, {
                 batchSize,
                 epochs: epochs,
@@ -199,7 +209,6 @@ class VideoCam extends React.Component {
             });
             console.timeEnd("training")
             console.log("done");
-            // this.state.images = [];
             imageInput.dispose();
             return model;
         }
@@ -210,7 +219,6 @@ class VideoCam extends React.Component {
             ...this.state, predictionButton: null, stopButton: this.stopButton()
         })
         while (this.state.predict) {
-
             const predictedClass = tf.tidy(() => {
                 console.time("cap")
                 const img = this.capture();
@@ -220,15 +228,12 @@ class VideoCam extends React.Component {
                 console.timeEnd("mob")
                 console.time("transfer")
                 const predictions = this.state.trainedModel.predict(activation);
-                return predictions.as1D().argMax();;
+                return predictions.as1D().argMax();
             });
 
             const classId = (await predictedClass.data())[0];
             console.log(classId)
-            console.timeEnd("transfer")
-
             predictedClass.dispose();
-
             await tf.nextFrame();
         }
     }
@@ -236,16 +241,10 @@ class VideoCam extends React.Component {
     stop = () => {
         this.setState({ ...this.state, predict: false, stopButton: null, predictionButton: this.predictionButton() })
     }
-    handleAudio = () => {
-        // console.log(this.state.stream)
-        console.log(this.state.video.audioTracks);
-        this.state.audio.play();    
-    }
 
     render() {
         return (
             <div>
-                <Button onClick={this.handleAudio}>audio</Button>
                 <canvas ref="canvas" width={this.props.width} height={this.props.height} />
                 {this.state.labelButtons.map(val => val)}
                 <Button variant="fab" color="primary" aria-label="Add" onClick={this.AdditionalLabel.bind(this)}>

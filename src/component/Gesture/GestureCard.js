@@ -11,14 +11,49 @@ import React from "react";
 class GestureCard extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { title: this.props.title, label: this.props.label, actionSet: this.props.actionSet }
+        this.state = { title: this.props.title, audioChucks:[],audio:null ,audioMediaStreamDestination: this.props.audioMediaStreamDestination, label: this.props.label, actionSet: this.props.actionSet }
     }
 
-    textChange=(event)=>{
-        this.setState({...this.state, label: event.target.value})
+    componentDidMount=()=>{
+        var mediaRecorder = new MediaRecorder(this.state.audioMediaStreamDestination.stream);
+        mediaRecorder.ondataavailable = (evt)=> {
+            console.log(evt.data)
+            this.state.audioChucks.push(evt.data);
+            console.log(evt.data)
+        };
+
+        mediaRecorder.onstop =  (evt)=>{
+            // Make blob out of our blobs, and open it.
+            var blob = new Blob(this.state.audioChucks, { 'type': 'audio/ogg; codecs=opus' });
+            this.refs.audio.src = URL.createObjectURL(blob);
+            this.setState({...this.state, audio: this.refs.audio})
+        };
+        this.setState({...this.state, audioMediaRecorder: mediaRecorder})
+    }
+
+    textChange = (event) => {
+        this.setState({ ...this.state, label: event.target.value })
+    }
+
+    audioRecording=(event)=>{
+        console.log(this.state.audioMediaRecorder)
+        if(this.state.audioMediaRecorder.state === "inactive"){
+            this.state.audioMediaRecorder.start()
+        }else if(this.state.audioMediaRecorder.state === "recording"){
+            this.state.audioMediaRecorder.stop()
+        }
+        console.log(this.state.audioMediaRecorder)
     }
 
     render() {
+        var audioRecordingState = "";
+        if(this.state.audioMediaRecorder !== undefined&& this.state.audioMediaRecorder.state === "recording"){
+            // this.state.audioMediaRecorder.start()
+            audioRecordingState="Stop"
+        }else if(this.state.audioMediaRecorder !== undefined &&this.state.audioMediaRecorder.state === "inactive"){
+            // this.state.audioMediaRecorder.stop()
+            audioRecordingState= "Start"
+        }
         return (
             <Card>
                 <CardContent>
@@ -30,7 +65,7 @@ class GestureCard extends React.Component {
                                 </Grid>
                                 <Grid item>
                                     <TextField onChange={this.textChange} id="input-with-icon-grid" label={this.state.title}>
-                                    {this.state.label}
+                                        {this.state.label}
                                     </TextField>
                                 </Grid>
                             </Grid>
@@ -39,6 +74,8 @@ class GestureCard extends React.Component {
                     <Typography component="p">
                         {this.state.actionSet.map(val => val)}
                         <br />
+                        <audio controls ref="audio"/>
+                        <Button onClick={this.audioRecording}>{audioRecordingState}</Button>
                     </Typography>
                 </CardContent>
                 <CardActions>
