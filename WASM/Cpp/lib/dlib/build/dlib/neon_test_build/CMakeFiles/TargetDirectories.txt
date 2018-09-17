@@ -1,3 +1,0 @@
-C:/Users/james/Desktop/dlib-19.6/build/dlib/neon_test_build/CMakeFiles/neon_test.dir
-C:/Users/james/Desktop/dlib-19.6/build/dlib/neon_test_build/CMakeFiles/edit_cache.dir
-C:/Users/james/Desktop/dlib-19.6/build/dlib/neon_test_build/CMakeFiles/rebuild_cache.dir

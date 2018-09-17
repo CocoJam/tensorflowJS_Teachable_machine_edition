@@ -1,1 +1,0 @@
-C:\MinGW\bin\gfortran.exe  -O2 -O3 -DNDEBUG -O3 CMakeFiles/sblat2.dir/sblat2.f.o  -o sblat2.js ..\libeigen_blas.so 

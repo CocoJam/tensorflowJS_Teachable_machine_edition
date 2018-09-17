@@ -1,1 +1,0 @@
- -LC:/MinGW/lib/gcc/mingw32/6.3.0  -LC:/MinGW/lib/gcc  -LC:/MinGW/mingw32/lib  -LC:/MinGW/lib ../blas/libeigen_blas.so -lgfortran -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lquadmath -lm -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex 

@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "activate": "emsdk activate",
-    "wasm": "em++ -std=c++17 --bind -L WASM/Cpp/lib/dlib/build/dlib/libdlib.so -I WASM/Cpp/lib/dlib WASM/Cpp/Util.cpp -L WASM/Cpp/lib/eigen/libeigen_blas.so -I WASM/Cpp/lib/eigen -s TOTAL_MEMORY=100663296 -o WASM/WASM/dlib.js -s EXTRA_EXPORTED_RUNTIME_METHODS=['addOnPostRun'] -s MODULARIZE=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1",
-    "start": "webpack-dev-server --config ./webpack.config.js --mode development",
+   "start": "webpack-dev-server --config ./webpack.config.js --mode development",
     "test": "echo \"No test specified\" && exit 0",
     "build": "node --max_old_space_size=8192 ./node_modules/webpack/bin/webpack.js --mode production"
   },
@@ -24,6 +22,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "emcc-loader": "0.0.3",
     "react-hot-loader": "^4.3.3",
+    "three": "^0.96.0",
     "uglifyjs-webpack-plugin": "^1.3.0",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8",
@@ -36,23 +35,13 @@
     "@material-ui/lab": "^3.0.0-alpha.13",
     "@tensorflow-models/mobilenet": "^0.2.2",
     "@tensorflow/tfjs": "^0.12.5",
+    "@tensorflow/tfjs-converter": "^0.5.9",
     "babel-preset-env": "^1.7.0",
     "babel-runtime": "^6.26.0",
-    "chart.js": "^2.7.2",
-    "chartjs-chart-box-and-violin-plot": "^1.1.0",
-    "crossfilter": "^1.3.12",
-    "crossfilter2": "^1.4.6",
-    "d3v4": "^4.2.2",
     "exports-loader": "^0.7.0",
     "file-loader": "^1.1.11",
     "material-ui": "^0.20.2",
-    "numjs": "^0.16.0",
-    "plotly.js-basic-dist": "^1.39.4",
-    "preact": "^8.3.1",
     "react": "^16.4.1",
-    "react-chartjs-2": "^2.7.4",
-    "react-d3-basic": "^1.6.11",
-    "react-dom": "^16.4.1",
-    "react-plotlyjs": "^0.4.4"
+    "react-dom": "^16.4.1"
   }
 }

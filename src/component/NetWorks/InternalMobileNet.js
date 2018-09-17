@@ -1,5 +1,7 @@
 import * as mobilenet from '@tensorflow-models/mobilenet';
 import * as tf from "@tensorflow/tfjs";
+import {loadFrozenModel} from '@tensorflow/tfjs-converter';
+
 export const tensorflowMobileNet = async () => {
     return await mobilenet.load();
 }
@@ -51,6 +53,21 @@ export const TansferkerasModelGenerator = (inputShape, unitsList, learningRate, 
     model.compile({ optimizer: optimizer, loss: 'categoricalCrossentropy' });
     return model;
 }
+
+export const tensorflowMobileNetCoCo =async ()=>{
+    const MODEL_URL = 'https://storage.googleapis.com/tfjs-models/savedmodel/coco-ssd-mobilenet_v1/tensorflowjs_model.pb';
+    const WEIGHTS_URL = 'https://storage.googleapis.com/tfjs-models/savedmodel/coco-ssd-mobilenet_v1/weights_manifest.json';
+    const model = await loadFrozenModel(MODEL_URL, WEIGHTS_URL);
+    return model;
+}
+
+export const tensorflowCoCo =async ()=>{
+    const MODEL_URL = 'https://storage.googleapis.com/tfjs-models/savedmodel/coco-ssd/tensorflowjs_model.pb';
+    const WEIGHTS_URL = 'https://storage.googleapis.com/tfjs-models/savedmodel/coco-ssd/weights_manifest.json';
+    const model = await loadFrozenModel(MODEL_URL, WEIGHTS_URL);
+    return model;
+}
+
 
 export const CNNkerasModelGenerator = (inputShape, unitsList, learningRate, outputShape, outputActivation) => {
     console.log(unitsList)

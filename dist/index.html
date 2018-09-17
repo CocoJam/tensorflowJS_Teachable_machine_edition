@@ -9,37 +9,6 @@
   <div id="app"></div>
 
   <script src="./bundle.js"></script>
-  <script>
-
-    var Module = {
-      postRun: [],
-      onRuntimeInitialized: function () {
-        console.log("Runtime is ready...");
-        // QUnit.start();
-        window.dispatchEvent(new CustomEvent("cv", { cvReady: cv }))
-      },
-      print: (function () {
-      
-      })(),
-      printErr: function (text) {
-        console.log(text);
-      },
-      setStatus: function (text) {
-        console.log(text);
-      },
-      totalDependencies: 0
-    };
-
-    Module.setStatus('Downloading...');
-    window.onerror = function (event) {
-      Module.setStatus('Exception thrown, see JavaScript console');
-      Module.setStatus = function (text) {
-        if (text) Module.printErr('[post-exception status] ' + text);
-      };
-    };
-
-  </script>
-  <script src="./opencv/cv-wasm.js"></script>
 </body>
 
 </html>

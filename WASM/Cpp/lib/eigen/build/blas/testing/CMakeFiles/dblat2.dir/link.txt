@@ -1,1 +1,0 @@
-C:\MinGW\bin\gfortran.exe  -O2 -O3 -DNDEBUG -O3 CMakeFiles/dblat2.dir/dblat2.f.o  -o dblat2.js ..\libeigen_blas.so 

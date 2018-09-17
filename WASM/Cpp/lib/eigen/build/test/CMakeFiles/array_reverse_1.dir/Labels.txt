@@ -1,4 +1,0 @@
-# Target labels
- BuildOfficial
-# Source files and their labels
-C:/Users/james/Desktop/eigen/test/array_reverse.cpp

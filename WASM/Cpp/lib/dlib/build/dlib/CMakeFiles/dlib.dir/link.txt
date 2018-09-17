@@ -1,1 +1,0 @@
-C:\Users\james\emsdk\emscripten\1.38.10\emar.bat rc libdlib.a  @CMakeFiles\dlib.dir\objects1.rsp

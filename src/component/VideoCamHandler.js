@@ -9,6 +9,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard';
 import PeopleIcon from '@material-ui/icons/People';
 
 var mediaRecorder = null;
+//This is the Video Cam/ web cam handler which is a tied in with using tensorflow similar to the tensorflowjs' teachable mechaine.
 class VideoCam extends React.Component {
     trainButton = () => <Button variant="fab" color="primary" aria-label="Add" onClick={this.setUpTrain.bind(this)}>
         <AndroidIcon />
@@ -30,6 +31,7 @@ class VideoCam extends React.Component {
             trainButton: null, predictionButton: null, stopButton: null,
             trainedModel: null, predict: false
         }
+        //Setting up the Mobile net model, which is pinged from the google storage.
         tensorflowMobileMobilenet_v1_1_0_224_transferLearning().then((Net) => {
             this.setState({ ...this.state, model: Net })
             this.cameraSetUp();
@@ -45,25 +47,34 @@ class VideoCam extends React.Component {
         window.addEventListener('cv', this.handleCVEvent.bind(this));
     }
 
+    //Using WebRTC to set up camera and audio context to record audio.
     cameraSetUp() {
+        //Checking the navigator such as depending on what naviagtor each browser is using that different methods are used to get WebRTC.
         navigator.getUserMedia = navigator.getUserMedia ||
             navigator.webkitGetUserMedia ||
             navigator.mozGetUserMedia ||
             navigator.msGetUserMedia;
         if (!navigator.getUserMedia) { return false; }
+        //Getting the canvas context for drawing on to the canvas
         const ctx = this.refs.canvas.getContext('2d');
+        //A black rect to cover init time before init the video stream
         ctx.fillRect(0, 0, this.refs.canvas.height, this.refs.canvas.width);
+        //Creating the video html element in order to allow streaming from the camera into the video htmlelement
         const video = document.createElement("video");
         video.setAttribute("height", this.refs.canvas.height)
         video.setAttribute("width", this.refs.canvas.width)
+        //Creating audio nodes for Audiocontext, which this is the first init node.
         var audioCtx = new AudioContext();
         this.getWebcam(video, audioCtx);
+        //Creating the audio destinaction node and connecting them up from the init node.
         var dest = audioCtx.createMediaStreamDestination();
         dest.connect(audioCtx.destination);
+        window.video  = video
         this.setState({ ...this.state, audioMediaStreamDestination: dest, height: this.refs.canvas.height, width: this.refs.canvas.width, video: video, ctx: ctx });
         this.startAnimationLoop();
     }
 
+    //Please read WebRTC for more information about using these methods below.
     getWebcam = (video, audioCtx) => {
         navigator.getUserMedia({
             video: true, audio: {
@@ -73,12 +84,14 @@ class VideoCam extends React.Component {
                 }
             }
         }, function (stream) {
+            //Grabbing the stream and creating the blob to attach it into the Video element to create video streaming
             video.src = window.URL.createObjectURL(stream);
+            //Event of video on load and play and muting it to prevent audio leak to futher audio recording
             video.onloadedmetadata = function (e) {
                 video.play();
                 video.muted = true;
             };
-
+            //Attaching the audio stream to the init audio node to create recording and passing through the connected nodes to create filtered noise.
             var source = audioCtx.createMediaStreamSource(stream);
             var biquadFilter = audioCtx.createBiquadFilter();
             biquadFilter.type = "lowshelf";
@@ -86,25 +99,26 @@ class VideoCam extends React.Component {
 
             source.connect(biquadFilter);
             biquadFilter.connect(audioCtx.destination);
-
-            // return stream;
         }, function (e) {
             console.error(e);
         });
     }
 
+    //Animation loop for repainting the canvas and 
     animationLoop() {
+        //Requesting animation frame for taking the advantage of the single ui thread through async proto.
         var loopFrame = requestAnimationFrame(this.animationLoop.bind(this));
-        // this.state.ctx.globalAlpha = 0.1;
+        //Drawing the current instance of video stream source, as an image into the canvas by using the associated canvas context.
         this.state.ctx.drawImage(this.state.video, 0, 0, this.state.height, this.state.width);
+        // let frame = this.state.ctx.getImageData(0, 0, this.state.width, this.state.height);
         this.state.ctx.restore();
     }
 
     startAnimationLoop() {
-        // setInterval(this.animationLoop.bind(this), 1000);
         var loopFrame = loopFrame || requestAnimationFrame(this.animationLoop.bind(this));
     }
 
+    //Capturing method for using the tensorflow and current camera to create the input pixel values as input features into CNN.
     capture() {
         return tf.tidy(() => {
             const webcamImage = tf.fromPixels(this.state.video);
@@ -134,12 +148,13 @@ class VideoCam extends React.Component {
     //     // console.log(this.state.images)
     // }
 
+    //Predicting at this instance based on the current model, which is the mobile net for feature extraction and custom net for inferencing.
     predictCurrent(label) {
-        console.log("cap")
         if (this.state.model !== null) {
             // this.state.images.push(this.capture());
             const result = tf.tidy(() => {
                 const cap = this.capture();
+                //Using mobile net to inference for feature extraction.
                 var re = this.state.model.predict(cap);
                 return re
             })
@@ -176,6 +191,7 @@ class VideoCam extends React.Component {
         })
     }
 
+    //Using saved input features and associated assigned label data for training, which 
     Train = async () => {
         if (this.state.model !== null) {
             //Memory leak it too many samples....
@@ -190,9 +206,7 @@ class VideoCam extends React.Component {
 
             const model = TansferkerasModelGenerator(this.state.model.outputShape, [100, 50], 0.0001, classNum, "softmax")
             const imageInput = tf.concat2d(this.state.images);
-            console.log(imageInput.shape[0])
             var batchSize = Math.floor(imageInput.shape[0] * 0.4);
-            console.log(batchSize)
             if (batchSize < 2) {
                 batchSize = imageInput.shape[0]
             }
@@ -207,8 +221,6 @@ class VideoCam extends React.Component {
                     }
                 }
             });
-            console.timeEnd("training")
-            console.log("done");
             imageInput.dispose();
             return model;
         }
@@ -220,18 +232,12 @@ class VideoCam extends React.Component {
         })
         while (this.state.predict) {
             const predictedClass = tf.tidy(() => {
-                console.time("cap")
                 const img = this.capture();
-                console.timeEnd("cap")
-                console.time("mob")
                 const activation = this.state.model.predict(img);
-                console.timeEnd("mob")
-                console.time("transfer")
                 const predictions = this.state.trainedModel.predict(activation);
                 return predictions.as1D().argMax();
             });
-
-            const classId = (await predictedClass.data())[0];
+            const classId = (await predictedClass.data());
             console.log(classId)
             predictedClass.dispose();
             await tf.nextFrame();
@@ -250,11 +256,6 @@ class VideoCam extends React.Component {
                 <Button variant="fab" color="primary" aria-label="Add" onClick={this.AdditionalLabel.bind(this)}>
                     <AddIcon />
                 </Button>
-                {/* <div className={classes.root}>
-                    <LinearProgress variant="buffer" value={completed} valueBuffer={buffer} />
-                    <br />
-                    <LinearProgress color="secondary" variant="buffer" value={completed} valueBuffer={buffer} />
-                </div> */}
                 {this.state.trainButton}
                 {this.state.predictionButton}
                 {this.state.stopButton}
